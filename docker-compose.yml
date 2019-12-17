@@ -35,6 +35,7 @@ services:
       - db
 
   phpmyadmin:
+    container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin
     depends_on:
       - prototype-db
