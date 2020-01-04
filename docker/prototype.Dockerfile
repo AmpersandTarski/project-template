@@ -8,7 +8,7 @@ ARG SCRIPT=script.adl
 
 # Generate prototype application from folder
 RUN ampersand /usr/local/project/${SCRIPT} --proto=/var/www --sqlHost=${DB_HOST} --verbose --skip-composer \
-  && chown -R www-data:www-data /var/www \
+  && chown -R www-data:www-data /var/www/log /var/www/data /var/www/generics \
   && cd /var/www \
   # && composer install --prefer-dist --no-dev --profile \
   # && npm install \
