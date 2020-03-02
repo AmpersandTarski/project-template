@@ -1,7 +1,7 @@
 ARG PROTOTYPE_IMAGE_VERSION=latest
 FROM docker.pkg.github.com/ampersandtarski/prototype/prototype-framework:${PROTOTYPE_IMAGE_VERSION}
 
-ADD . /usr/local/project
+COPY . /usr/local/project/
 
 # Generate prototype application from folder
 RUN ampersand proto /usr/local/project/project.adl \
