@@ -9,7 +9,6 @@ ARG SCRIPT=script.adl
 # Generate prototype application from folder
 RUN ampersand proto /usr/local/project/${SCRIPT} \
       --output-directory /var/www \
-      --sqlHost ${DB_HOST} \
       --verbose \
       --skip-composer
 
