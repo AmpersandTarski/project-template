@@ -3,10 +3,8 @@ FROM docker.pkg.github.com/ampersandtarski/prototype/prototype-framework:${PROTO
 
 ADD . /usr/local/project
 
-ARG SCRIPT=script.adl
-
 # Generate prototype application from folder
-RUN ampersand proto /usr/local/project/${SCRIPT} \
+RUN ampersand proto /usr/local/project/project.adl \
       --output-directory /var/www \
       --verbose \
       --skip-composer
