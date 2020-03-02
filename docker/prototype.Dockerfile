@@ -15,7 +15,7 @@ RUN ampersand proto /usr/local/project/${SCRIPT} \
 
 RUN chown -R www-data:www-data /var/www/log /var/www/data /var/www/generics \
  && cd /var/www \
- # && composer install --prefer-dist --no-dev --profile \
+ # && composer install --prefer-dist --no-dev --optimize-autoloader --profile \
  # && npm install \
  # && gulp build-ampersand \
  # && gulp build-project
