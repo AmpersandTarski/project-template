@@ -3,7 +3,6 @@ FROM docker.pkg.github.com/ampersandtarski/prototype/prototype-framework:${PROTO
 
 ADD . /usr/local/project
 
-ARG DB_HOST=db
 ARG SCRIPT=script.adl
 
 # Generate prototype application from folder
