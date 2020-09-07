@@ -12,8 +12,6 @@ services:
     build:
       context: .
       dockerfile: docker/prototype.Dockerfile
-      args:
-        - PROTOTYPE_IMAGE_VERSION=latest
     environment:
       - AMPERSAND_DBHOST=prototype-db # refers to service below
     volumes:
