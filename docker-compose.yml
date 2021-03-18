@@ -33,6 +33,7 @@ services:
       - MYSQL_ROOT_PASSWORD= # empty root password
       - MYSQL_USER=ampersand
       - MYSQL_PASSWORD=ampersand
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
     volumes:
       - db-data:/var/lib/mysql
     networks:
