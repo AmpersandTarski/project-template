@@ -26,7 +26,7 @@ services:
   
   prototype-db:
     container_name: prototype-db
-    image: mariadb:10.4
+    image: docker.pkg.github.com/ampersandtarski/prototype-db/prototype-db
     command: ["--sql-mode=ANSI,TRADITIONAL"]
     restart: unless-stopped
     environment:
