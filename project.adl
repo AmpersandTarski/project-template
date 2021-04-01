@@ -1,3 +1,81 @@
-CONTEXT MyProject
+CONTEXT "CVE_Import"
+
+-- INCLUDE "CVEModel.adl"
+
+CONCEPT CVEUploadForm "form that is used to import CVEs"
+CLASSIFY CVEUploadForm ISA Form
+
+
+--[CVEUploadForm Structure]
+cveUploadForm_Key1 :: CVEUploadForm * Key1             [UNI]
+cveUploadForm_Key2 :: CVEUploadForm * Key2             [UNI]
+cveUploadForm_Key3 :: CVEUploadForm * Key3             [UNI]
+cveUploadForm_Key4 :: CVEUploadForm * Key4             
+
+key3Subkey1 :: Key3 * SubKey1             [UNI]
+key3Subkey2 :: Key3 * SubKey2             [UNI]
+
+key4Subkey3 :: Key4 * SubKey3             [UNI]
+key4Subkey4 :: Key4 * SubKey4             [UNI]
+
+
+VIEW CVEUploadForm : CVEUploadForm 
+  { "formType": TXT "CVEUploadForm" -- Concept name of the form to be filled in
+  , "formId" : I -- Form
+  , "proxy" : TXT "test" -- URL of the endpoint that accepts the attestation
+  , "ifcId" : TXT "CVEUpload" -- Interface/API name that will take the attestation
+  , "attestationType" : TXT "test2"
+  , "uploadHint" : TXT "Upload JSON file with CVE's" -- for QR popup this is postfixed with " with the SSIF app"
+  } ENDVIEW
+
+
+--[INPUT API]
+--! Labels of the Input-API below must match the labels and structure of the JSON from which we want to import the CVEs
+API "CVEUpload": I[CVEUploadForm] CRud BOX -- DeclVergoedingAtt --> ProvisionsReqForm
+    [ "Key1":  cveUploadForm_Key1 CRUd
+    , "Key2" : cveUploadForm_Key2 CRUd
+    , "Key3" : cveUploadForm_Key3 CRUd BOX
+        [ "SubKey1" : key3Subkey1 CRUd
+        , "SubKey2" : key3Subkey2 CRUd
+        ]
+    , "Key4" : cveUploadForm_Key4 CRUd BOX
+        [ "SubKey3" : key4Subkey3 CRUd
+        , "SubKey4" : key4Subkey4 CRUd
+        ]
+    ]                                                
+
+--[Interface for importing CVEs from a JSON file]
+INTERFACE "CVE Upload Forms": V[SESSION*CVEUploadForm] CRud BOX <TABLE>
+    [ "CVEUploadForm": I CRuD
+    , "Key1": cveUploadForm_Key1 cRud
+    , "Key2" : cveUploadForm_Key2 cRud
+    , "Key3" : cveUploadForm_Key3 cRud BOX
+        [ "SubKey1" : key3Subkey1 CRUd
+        , "SubKey2" : key3Subkey2 CRUd
+        ]
+    , "Key4" : cveUploadForm_Key4 cRud BOX
+        [ "SubKey3" : key4Subkey3 CRUd
+        , "SubKey4" : key4Subkey4 CRUd
+        ]
+    ]
+
+cveUploadFormMsg :: CVEUploadForm * IfcText -- messages to inform the user
+POPULATION IfcText CONTAINS [ "Upload CVEs" ]
+VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
+INTERFACE "CVE Import": I[CVEUploadForm] cRud BOX <RAW>
+    [ "Uploadtext": V;"Upload CVEs"[IfcText] cRud <STRONG>
+    ,   "Import": I cRud <CVEUploadForm> BOX <SSIFORM>
+        [ "Key1": cveUploadForm_Key1 cRud
+        , "Key2" : cveUploadForm_Key2 cRud
+        , "Key3" : cveUploadForm_Key3 cRud BOX
+            [ "SubKey1" : key3Subkey1 CRUd
+            , "SubKey2" : key3Subkey2 CRUd
+            ]
+        ]
+    , "Key4" : cveUploadForm_Key4 cRud BOX
+        [ "SubKey3" : key4Subkey3 CRUd
+        , "SubKey4" : key4Subkey4 CRUd
+        ]
+    ]
 
 ENDCONTEXT
