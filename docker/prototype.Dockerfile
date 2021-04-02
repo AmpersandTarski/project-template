@@ -1,6 +1,10 @@
 FROM ampersandtarski/prototype-framework:latest
 #FROM ssif-base-image
 
+# Add additional php library for working with JSON web tokens
+# Fix version at 3.3.3 because of breaking changes in 3.4 (https://github.com/laravel/passport/issues/1381)
+RUN composer require lcobucci/jwt:3.3.3
+
 COPY . /usr/local/project/
 
 # Copy shared templates before running Ampersand compiler
