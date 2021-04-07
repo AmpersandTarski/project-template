@@ -156,24 +156,21 @@ $api->group('/ssif', function () {
     /** @var \Ampersand\AmpersandApp $ampersandApp */
     
     // SSI service endpoint
-    // $ssiServiceEndpoint = getenv('SSI_SERVICE_ENDPOINT');
-    $ssiServiceEndpoint = "ServiceEndpoint";
+    $ssiServiceEndpoint = getenv('SSI_SERVICE_ENDPOINT');
     if ($ssiServiceEndpoint === false) {
         throw new Exception("SSI service endpoint not configured", 500);
     }
     $request = $request->withAttribute('ssiServiceEndpoint', $ssiServiceEndpoint);
 
     // SSI service shared secret
-    // $ssiServiceSharedSecret = getenv('SSI_SERVICE_SHARED_SECRET');
-    $ssiServiceSharedSecret = 'SharedSecret';
+    $ssiServiceSharedSecret = getenv('SSI_SERVICE_SHARED_SECRET');
     if ($ssiServiceSharedSecret === false) {
         throw new Exception("SSI service shared secret not configured", 500);
     }
     $request = $request->withAttribute('ssiServiceSharedSecret', $ssiServiceSharedSecret);
 
     // SSI service my organization id
-    // $ssiServiceOrgId = getenv('SSI_SERVICE_MY_ORG_ID');
-    $ssiServiceOrgId = 'OrgId';
+    $ssiServiceOrgId = getenv('SSI_SERVICE_MY_ORG_ID');
     if ($ssiServiceOrgId === false) {
         throw new Exception("SSI service organization id not configured", 500);
     }
