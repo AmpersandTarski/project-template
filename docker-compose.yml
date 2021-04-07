@@ -17,7 +17,7 @@ services:
 
       - SSI_SERVICE_ENDPOINT=https://service.ssi-lab.nl
       - SSI_SERVICE_MY_ORG_ID=73347d34-afc5-4140-9bbc-b155b2178ed5
-      - SSI_SERVICE_SHARED_SECRET=d12b8099c2a7fc8c49056c8482cf47b2123fafddb4801544cce8348038c769bc # Demo secret. Don't put production value here
+      - SSI_SERVICE_SHARED_SECRET=a931d0a885b7a7966cee9aa8e78304bd2ed5ff4340c7425ec372505756f77337 # Demo secret. Don't put production value here
     volumes:
       - ./:/usr/local/project
     restart: always
