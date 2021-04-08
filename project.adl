@@ -3,28 +3,13 @@ CONTEXT "Data_Import"
 -- INCLUDE "DataModel.adl"
 
 CONCEPT DataUploadForm "form that is used to import Data"
-CONCEPT DataIssueForm "form that is used to issue Data"
 CLASSIFY DataUploadForm ISA Form
-CLASSIFY DataIssueForm ISA Form
-
 
 --[DataUploadForm Structure]
 dataUploadForm_Key1 :: DataUploadForm * Key1             [UNI]
 dataUploadForm_Key2 :: DataUploadForm * Key2             [UNI]
 dataUploadForm_Key3 :: DataUploadForm * Key3             [UNI]
-dataUploadForm_Key4 :: DataUploadForm * Key4             
-
---[DataIssueForm Structure]
-dataIssueForm_Key1 :: DataIssueForm * Key1             [UNI]
-dataIssueForm_Key2 :: DataIssueForm * Key2             [UNI]
-dataIssueForm_Key3 :: DataIssueForm * Key3             [UNI]
-dataIssueForm_Key4 :: DataIssueForm * Key4             
-
---[DataVerifyForm Structure]
-dataVerifyForm_Key1 :: DataVerifyForm * Key1             [UNI]
-dataVerifyForm_Key2 :: DataVerifyForm * Key2             [UNI]
-dataVerifyForm_Key3 :: DataVerifyForm * Key3             [UNI]
-dataVerifyForm_Key4 :: DataVerifyForm * Key4             
+dataUploadForm_Key4 :: DataUploadForm * Key4         
 
 -- Key, subkey
 key3Subkey1 :: Key3 * SubKey1             [UNI]
@@ -42,22 +27,6 @@ VIEW DataUploadForm : DataUploadForm
   , "attestationType" : TXT "test2"
   , "uploadHint" : TXT "Upload JSON file with Data" -- for QR popup this is postfixed with " with the SSIF app"
   } ENDVIEW
-
-dataIssueForm_Idfr :: DataIssueForm * Idfr             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
-ROLE ExecEngine MAINTAINS "Generate dataIssueForm_Idfr if it does not exist" 
-RULE "Generate dataIssueForm_Idfr if it does not exist": I |- dataIssueForm_Idfr;dataIssueForm_Idfr~ 
-VIOLATION (TXT "{EX} InsPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Idfr;{php}'attid:paymentrequest:'.bin2hex(random_bytes(20))")
-ROLE ExecEngine MAINTAINS "dataIssueForm_Idfrs must be unique, and only available when needed" 
-RULE "dataIssueForm_Idfrs must be unique, and only available when needed": dataIssueForm_Idfr;dataIssueForm_Idfr~ |- I --pmtrxIsAttestable
-VIOLATION (TXT "{EX} DelPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Idfr;", TGT I) -- Deleting it is ok; it is automatically regenerated
-
-VIEW DataIssueForm : DataIssueForm
-    { "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
-    , "token"            : dataIssueForm_Idfr                      -- Token that provides access to the interface
-    , "subjectId"        : I                                 -- Subject from which the attestation is to be created
-    , "credentialType"   : TXT "NameCredential"   -- Interface name that will provide the attestation
-    } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
-
 
 --[INPUT API]
 --! Labels of the Input-API below must match the labels and structure of the JSON from which we want to import the Data
@@ -89,51 +58,6 @@ INTERFACE "Data Upload Forms": V[SESSION*DataUploadForm] CRud BOX <TABLE>
         ]
     ]
 
---[ISSUE API]
---! Labels of the Issue-API below must match the labels and structure of the JSON data that we weant to issue
-API "DataIssue": dataIssueForm_Idfr~;I[DataIssueForm] CRud BOX -- DeclVergoedingAtt --> ProvisionsReqForm
-    [ "Key1":  dataIssueForm_Key1 CRUd
-    , "Key2" : dataIssueForm_Key2 CRUd
-    , "Key3" : dataIssueForm_Key3 CRUd BOX
-        [ "SubKey1" : key3Subkey1 CRUd
-        , "SubKey2" : key3Subkey2 CRUd
-        ]
-    , "Key4" : dataIssueForm_Key4 CRUd BOX
-        [ "SubKey3" : key4Subkey3 CRUd
-        , "SubKey4" : key4Subkey4 CRUd
-        ]
-    ]                                                
-
---[Interface for issuing Data]
-INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
-    [ "DataIssueForm": I CRuD
-    , "Key1": dataIssueForm_Key1 CRUd
-    , "Key2" : dataIssueForm_Key2 CRUd
-    , "Key3" : dataIssueForm_Key3 CRUd BOX
-        [ "SubKey1" : key3Subkey1 CRUd
-        , "SubKey2" : key3Subkey2 CRUd
-        ]
-    , "Key4" : dataIssueForm_Key4 CRUd BOX
-        [ "SubKey3" : key4Subkey3 CRUd
-        , "SubKey4" : key4Subkey4 CRUd
-        ]
-    ]
-
---[Interface for verifying Data]
-INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRud BOX <TABLE>
-    [ "DataVerifyForm": I CRuD
-    , "Key1": dataVerifyForm_Key1 cRud
-    , "Key2" : dataVerifyForm_Key2 cRud
-    , "Key3" : dataVerifyForm_Key3 cRud BOX
-        [ "SubKey1" : key3Subkey1 cRud
-        , "SubKey2" : key3Subkey2 cRud
-        ]
-    , "Key4" : dataVerifyForm_Key4 cRud BOX
-        [ "SubKey3" : key4Subkey3 cRud
-        , "SubKey4" : key4Subkey4 cRud
-        ]
-    ]
-
 dataUploadFormMsg :: DataUploadForm * IfcText -- messages to inform the user
 POPULATION IfcText CONTAINS [ "Upload Data" ]
 VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
@@ -153,6 +77,58 @@ INTERFACE "Data Import": I[DataUploadForm] cRud BOX <RAW>
         ]
     ]
 
+
+
+
+
+--[ISSUE]
+
+CONCEPT DataIssueForm "form that is used to issue Data"
+CLASSIFY DataIssueForm ISA Form
+
+--[DataIssueForm Structure]
+dataIssueForm_addressLine1 :: DataIssueForm * AddressLine1      [UNI]
+dataIssueForm_addressLine2 :: DataIssueForm * AddressLine2      [UNI]
+dataIssueForm_postalCode :: DataIssueForm * PostelCode          [UNI]
+dataIssueForm_city :: DataIssueForm * City                      [UNI]
+dataIssueForm_country :: DataIssueForm * Country                [UNI]
+
+
+dataIssueForm_Idfr :: DataIssueForm * Idfr             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
+ROLE ExecEngine MAINTAINS "Generate dataIssueForm_Idfr if it does not exist" 
+RULE "Generate dataIssueForm_Idfr if it does not exist": I |- dataIssueForm_Idfr;dataIssueForm_Idfr~ 
+VIOLATION (TXT "{EX} InsPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Idfr;{php}'attid:paymentrequest:'.bin2hex(random_bytes(20))")
+ROLE ExecEngine MAINTAINS "dataIssueForm_Idfrs must be unique, and only available when needed" 
+RULE "dataIssueForm_Idfrs must be unique, and only available when needed": dataIssueForm_Idfr;dataIssueForm_Idfr~ |- I --pmtrxIsAttestable
+VIOLATION (TXT "{EX} DelPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Idfr;", TGT I) -- Deleting it is ok; it is automatically regenerated
+
+VIEW DataIssueForm : DataIssueForm
+    { "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
+    , "token"            : dataIssueForm_Idfr                      -- Token that provides access to the interface
+    , "subjectId"        : I                                 -- Subject from which the attestation is to be created
+    , "credentialType"   : TXT "NameCredential"   -- Interface name that will provide the attestation
+    } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
+
+--[ISSUE API]
+--! Labels of the Issue-API below must match the labels and structure of the JSON data that we weant to issue
+API "DataIssue": dataIssueForm_Idfr~;I[DataIssueForm] CRud BOX
+    [ "addressLine1":  dataIssueForm_addressLine1 CRUd
+    , "addressLine2" : dataIssueForm_addressLine2 CRUd
+    , "postalCode" : dataIssueForm_postalCode CRUd
+    , "city" : dataIssueForm_city CRUd
+    , "country": dataIssueForm_country CRUd
+    ]                                                
+
+--[Interface for issuing Data]
+INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
+    [ "DataIssueForm": I CRuD
+    , "addressLine1":  dataIssueForm_addressLine1 CRUd
+    , "addressLine2" : dataIssueForm_addressLine2 CRUd
+    , "postalCode" : dataIssueForm_postalCode CRUd
+    , "city" : dataIssueForm_city CRUd
+    , "country": dataIssueForm_country CRUd
+    ]
+
 dataIssueFormMsg :: DataIssueForm * IfcText -- messages to inform the user
 POPULATION IfcText CONTAINS [ "Issue Data" ]
 -- VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
@@ -161,6 +137,22 @@ INTERFACE "Data Issue": I[DataIssueForm] cRud BOX <RAW>
     , "Issue": I cRud <DataIssueForm>
     ]
 
+
+
+
+
+--[VERIFY]
+
+CONCEPT DataVerifyForm "form that is used to verify Data"
+CLASSIFY DataVerifyForm ISA Form
+
+--[DataVerifyForm Structure]
+dvfAttIdfr :: DataVerifyForm * AttIdfr [UNI]
+dvfFirstNames :: DataVerifyForm * FirstNames [UNI]
+dvfFirstName :: DataVerifyForm * FirstName [UNI]
+dvfFamilyName :: DataVerifyForm * FamilyName [UNI]
+dvfPrefix :: DataVerifyForm * Prefix [UNI]
+
 --[Example: Verify NameCredential]
 VIEW DataVerifyForm : DataVerifyForm 
   { "formId"         : I -- Atom identifier of the form to be filled in
@@ -168,6 +160,7 @@ VIEW DataVerifyForm : DataVerifyForm
   , "ifcId"          : TXT "DataVerify"  -- Interface/API name that will take the attestation
   } HTML TEMPLATE "View-CredentialVerifyRequest.html" ENDVIEW
 
+--[Verify API]
 --! Labels van onderstaande Input-API moeten matchen met de labels & structuur uit de API "PersoonslijstAttestatie"! in file "BRP_Attestaties.adl"
 -- API "DataVerify": I[DataVerifyForm] CRud BOX
 --    [ "id": dvfAttIdfr CRUd -- Attestatie identifiers zoals die door de uitgever is gegenereerd en bij het inlezen is geverifieerd
@@ -185,11 +178,14 @@ API "DataVerify": I[DataVerifyForm] CRud BOX
    , "prefix" : dvfPrefix CRUd
    ]
 
-dvfAttIdfr :: DataVerifyForm * AttIdfr [UNI]
-dvfFirstNames :: DataVerifyForm * FirstNames [UNI]
-dvfFirstName :: DataVerifyForm * FirstName [UNI]
-dvfFamilyName :: DataVerifyForm * FamilyName [UNI]
-dvfPrefix :: DataVerifyForm * Prefix [UNI]
+--[Interface for verifying Data]
+INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRud BOX <TABLE>
+    [ "DataVerifyForm": I CRuD
+    , "firstnames" : dvfFirstNames CRUd
+    , "firstname" : dvfFirstName CRUd
+    , "familyname" : dvfFamilyName CRUd
+    , "prefix" : dvfPrefix CRUd
+    ]
 
 dataVerifyFormMsg :: DataVerifyForm * IfcText -- messages to inform the user
 POPULATION IfcText CONTAINS [ "Verify Data" ]
