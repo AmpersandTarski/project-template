@@ -53,6 +53,20 @@ $api->group('/ssif', function () {
 
     // API method to process 'credential-issue-response' from the SSI service
     $this->get('/credential-issue-response/{token}', function (Request $request, Response $response, $args = []) {
+        // Parse jwt
+        $token = $args['token'];
+        $token = (new Parser())->parse((string) $token); // Parses from a string
+        $token->getHeaders(); // Retrieves the token header
+        $token->getClaims(); // Retrieves the token claims
+        
+        // TODO: Validation
+
+        // Check status
+        $status = $token->getClaim('status');
+        if($status!='success') {
+            return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        }
+        
         $jwt = $args['token'];
         return '{"jwt": "'.$jwt.'"}';
     });
