@@ -20,6 +20,12 @@ dataIssueForm_Key2 :: DataIssueForm * Key2             [UNI]
 dataIssueForm_Key3 :: DataIssueForm * Key3             [UNI]
 dataIssueForm_Key4 :: DataIssueForm * Key4             
 
+--[DataVerifyForm Structure]
+dataVerifyForm_Key1 :: DataVerifyForm * Key1             [UNI]
+dataVerifyForm_Key2 :: DataVerifyForm * Key2             [UNI]
+dataVerifyForm_Key3 :: DataVerifyForm * Key3             [UNI]
+dataVerifyForm_Key4 :: DataVerifyForm * Key4             
+
 -- Key, subkey
 key3Subkey1 :: Key3 * SubKey1             [UNI]
 key3Subkey2 :: Key3 * SubKey2             [UNI]
@@ -49,7 +55,7 @@ VIEW DataIssueForm : DataIssueForm
     { "ifcId"            : TXT "DataIssueForm"   -- Ampersand API INTERFACE that serves the credential data
     , "token"            : dataIssueForm_Idfr                      -- Token that provides access to the interface
     , "subjectId"        : I                                 -- Subject from which the attestation is to be created
-    , "credentialType"   : TXT "DataIssueForm"   -- Interface name that will provide the attestation
+    , "credentialType"   : TXT "NameCredential"   -- Interface name that will provide the attestation
     } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
 
 
@@ -113,6 +119,21 @@ INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
         ]
     ]
 
+--[Interface for verifying Data]
+INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRud BOX <TABLE>
+    [ "DataVerifyForm": I CRuD
+    , "Key1": dataVerifyForm_Key1 cRud
+    , "Key2" : dataVerifyForm_Key2 cRud
+    , "Key3" : dataVerifyForm_Key3 cRud BOX
+        [ "SubKey1" : key3Subkey1 cRud
+        , "SubKey2" : key3Subkey2 cRud
+        ]
+    , "Key4" : dataVerifyForm_Key4 cRud BOX
+        [ "SubKey3" : key4Subkey3 cRud
+        , "SubKey4" : key4Subkey4 cRud
+        ]
+    ]
+
 dataUploadFormMsg :: DataUploadForm * IfcText -- messages to inform the user
 POPULATION IfcText CONTAINS [ "Upload Data" ]
 VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
@@ -138,6 +159,44 @@ POPULATION IfcText CONTAINS [ "Issue Data" ]
 INTERFACE "Data Issue": I[DataIssueForm] cRud BOX <RAW>
     [ "Issuetext": V;"Issue Data"[IfcText] cRud <STRONG>
     , "Issue": I cRud <DataIssueForm>
+    ]
+
+--[Example: Verify NameCredential]
+VIEW DataVerifyForm : DataVerifyForm 
+  { "formId"         : I -- Atom identifier of the form to be filled in
+  , "credentialType" : TXT "NameCredential"
+  , "ifcId"          : TXT "PersoonslijstAttestatieToAuthenticeerBalieklant"  -- Interface/API name that will take the attestation
+  } HTML TEMPLATE "View-CredentialVerifyRequest.html" ENDVIEW
+
+--! Labels van onderstaande Input-API moeten matchen met de labels & structuur uit de API "PersoonslijstAttestatie"! in file "BRP_Attestaties.adl"
+API "PersoonslijstAttestatieToAuthenticeerBalieklant": I[DataVerifyForm] CRud BOX
+   [ "id": dvfAttIdfr CRUd -- Attestatie identifiers zoals die door de uitgever is gegenereerd en bij het inlezen is geverifieerd
+   , "naamgegevens" : I cRud BOX
+      [ "firstnames" : dvfFirstNames CRUd
+      , "firstname" : dvfFirstName CRUd
+      , "familyname" : dvfFamilyName CRUd
+      , "prefix" : dvfPrefix CRUd
+      ]
+   ]
+
+dvfAttIdfr :: DataVerifyForm * AttIdfr [UNI]
+dvfFirstNames :: DataVerifyForm * FirstNames [UNI]
+dvfFirstName :: DataVerifyForm * FirstName [UNI]
+dvfFamilyName :: DataVerifyForm * FamilyName [UNI]
+dvfPrefix :: DataVerifyForm * Prefix [UNI]
+
+dataVerifyFormMsg :: DataVerifyForm * IfcText -- messages to inform the user
+POPULATION IfcText CONTAINS [ "Verify Data" ]
+-- VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
+INTERFACE "Data Verify": I[DataVerifyForm] cRud BOX <RAW>
+    [ "Verifytext": V;"Verify Data"[IfcText] cRud <STRONG>
+    , "Verify": I cRud <DataVerifyForm>
+    , "naamgegevens" : I cRud BOX
+      [ "firstnames" : dvfFirstNames cRud
+      , "firstname" : dvfFirstName cRud
+      , "familyname" : dvfFamilyName cRud
+      , "prefix" : dvfPrefix cRud
+      ]
     ]
 
 ENDCONTEXT

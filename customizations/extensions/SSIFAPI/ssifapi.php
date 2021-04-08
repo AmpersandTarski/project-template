@@ -23,7 +23,9 @@ $api->group('/ssif', function () {
         $credentialToken = $args['token']; // an access token
         $subjectId = $request->getQueryParam('subjectId'); // the subject (Ampersand atom identifier for which a credential must be issued)
         $credentialType = rawurldecode($request->getQueryParam('credentialType')); // URI of the credential type that needs to be issued
-        $callbackUrl = rawurldecode($request->getQueryParam('callbackUrl', $request->getUri()->getHost()));
+        // $callbackUrl = "http://localhost/api/v1/ssif/credential-issue-response/";
+        $callbackUrl = "http://".rawurldecode($request->getUri()->getHost())."/api/v1/ssif/credential-issue-response/";
+        // $callbackUrl = rawurldecode($request->getQueryParam('callbackUrl', $request->getUri()->getHost()));
 
         // Prepare
         $resource = ResourceList::makeFromInterface($credentialToken, $ifcId)->one($subjectId);
@@ -50,18 +52,22 @@ $api->group('/ssif', function () {
 
     // API method to process 'credential-issue-response' from the SSI service
     $this->get('/credential-issue-response/{token}', function (Request $request, Response $response, $args = []) {
+        $jwt = $args['token'];
+        return '{"jwt": "'.$jwt.'"}';
     });
 
     // API method to redirect the user with an 'credential-verify-request' to the SSI service
-    $this->get('/credential-verify-request/{formId}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-verify-request/{formId}/{ifcId}', function (Request $request, Response $response, $args = []) {
         
         // Input
         $formId = $args['formId'];
+        $ifcId = $args['ifcId'];
         $credentialType = rawurldecode($request->getQueryParam('credentialType')); // URI of the credential type that is requested
 
         // Prepare
         $jti = bin2hex(random_bytes(12));
-        $callbackUrl = $request->getUri()->getHost() . "/api/vi/ssif/credential-verify-response/{$formId}";
+        // $callbackUrl = $request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}";
+        $callbackUrl = 'http://'.$request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}/{$ifcId}/";
 
         // JWT interface with SSI service
         // See: https://ci.tno.nl/gitlab/ssi-lab/developer-docs/-/blob/master/jwt-descriptions/jwt-credential-verify-request.md
@@ -82,7 +88,45 @@ $api->group('/ssif', function () {
     });
 
     // API method to process 'credential-verify-response' from the SSI service
-    $this->get('/credential-verify-response/{formId}/{token}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-verify-response/{formId}/{ifcId}/{token}', function (Request $request, Response $response, $args = []) {
+        /** @var \Ampersand\AmpersandApp $ampersandApp */
+        $ampersandApp = $this['ampersand_app'];
+        /** @var \Ampersand\AngularApp $angularApp */
+        $angularApp = $this['angular_app'];
+        
+        $form = ResourceList::makeFromInterface($args['formId'], $args['ifcId'])->one($args['formId']);
+        
+        $transaction = $ampersandApp->newTransaction();
+        
+        // Parse jwt
+
+        $content = '{"payload":{"firstnames":"Peter Niek","firstname":"Peter","familyname":"Langenkamp","prefix":""}}';
+
+        $data = json_decode($content, false);
+        
+        // Check status
+        // success --> continue
+        // cancelled --> abort
+        
+        // Check if payload is specified
+        if (!isset($data->payload)) {
+            throw new Exception("Payload of attestation not provided{$data}", 400);
+        }
+        
+        $form->put($data->payload);
+        // TODO: also put metadata of attestation
+        
+        $transaction->runExecEngine()->close();
+
+        $respContent = [ 'content'               => $data
+                       , 'notifications'         => $ampersandApp->userLog()->getAll()
+                       , 'invariantRulesHold'    => $transaction->invariantRulesHold()
+                       , 'isCommitted'           => $transaction->isCommitted()
+                       , 'sessionRefreshAdvice'  => $angularApp->getSessionRefreshAdvice()
+                       , 'navTo'                 => $angularApp->getNavToResponse($transaction->isCommitted() ? 'COMMIT' : 'ROLLBACK')
+                       ];
+        
+        return $response->withJson($respContent, 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     });
 
     /**

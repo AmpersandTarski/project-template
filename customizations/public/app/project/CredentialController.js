@@ -16,6 +16,6 @@ angular.module('AmpersandApp')
     $scope.getCredentialVerifyRequestURL = function (obj) {
         let data = obj._view_;
         let encodedCredentialType = encodeURIComponent(data.credentialType);
-        return `api/v1/ssif/credential-verify-request/${data.formId}?credentialType=${encodedCredentialType}`;
+        return `api/v1/ssif/credential-verify-request/${data.formId}/${data.ifcId}?credentialType=${encodedCredentialType}`;
     }
 });
