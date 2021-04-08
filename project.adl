@@ -165,18 +165,24 @@ INTERFACE "Data Issue": I[DataIssueForm] cRud BOX <RAW>
 VIEW DataVerifyForm : DataVerifyForm 
   { "formId"         : I -- Atom identifier of the form to be filled in
   , "credentialType" : TXT "NameCredential"
-  , "ifcId"          : TXT "PersoonslijstAttestatieToAuthenticeerBalieklant"  -- Interface/API name that will take the attestation
+  , "ifcId"          : TXT "DataVerify"  -- Interface/API name that will take the attestation
   } HTML TEMPLATE "View-CredentialVerifyRequest.html" ENDVIEW
 
 --! Labels van onderstaande Input-API moeten matchen met de labels & structuur uit de API "PersoonslijstAttestatie"! in file "BRP_Attestaties.adl"
-API "PersoonslijstAttestatieToAuthenticeerBalieklant": I[DataVerifyForm] CRud BOX
-   [ "id": dvfAttIdfr CRUd -- Attestatie identifiers zoals die door de uitgever is gegenereerd en bij het inlezen is geverifieerd
-   , "naamgegevens" : I cRud BOX
-      [ "firstnames" : dvfFirstNames CRUd
-      , "firstname" : dvfFirstName CRUd
-      , "familyname" : dvfFamilyName CRUd
-      , "prefix" : dvfPrefix CRUd
-      ]
+-- API "DataVerify": I[DataVerifyForm] CRud BOX
+--    [ "id": dvfAttIdfr CRUd -- Attestatie identifiers zoals die door de uitgever is gegenereerd en bij het inlezen is geverifieerd
+--    , "naamgegevens" : I cRud BOX
+--       [ "firstnames" : dvfFirstNames CRUd
+--       , "firstname" : dvfFirstName CRUd
+--       , "familyname" : dvfFamilyName CRUd
+--       , "prefix" : dvfPrefix CRUd
+--       ]
+--    ]
+API "DataVerify": I[DataVerifyForm] CRud BOX
+   [ "firstnames" : dvfFirstNames CRUd
+   , "firstname" : dvfFirstName CRUd
+   , "familyname" : dvfFamilyName CRUd
+   , "prefix" : dvfPrefix CRUd
    ]
 
 dvfAttIdfr :: DataVerifyForm * AttIdfr [UNI]

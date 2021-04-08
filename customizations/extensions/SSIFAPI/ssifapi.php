@@ -5,6 +5,7 @@ use Slim\Http\Response;
 use Ampersand\Interfacing\Options;
 use Ampersand\Interfacing\ResourceList;
 use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 
@@ -99,33 +100,44 @@ $api->group('/ssif', function () {
         $transaction = $ampersandApp->newTransaction();
         
         // Parse jwt
+        $token = $args['token'];
+        $token = (new Parser())->parse((string) $token); // Parses from a string
+        $token->getHeaders(); // Retrieves the token header
+        $token->getClaims(); // Retrieves the token claims
+        // $token->getHeader('jti');
+        // $token->getClaim('iss');
 
-        $content = '{"payload":{"firstnames":"Peter Niek","firstname":"Peter","familyname":"Langenkamp","prefix":""}}';
-
-        $data = json_decode($content, false);
+        // $content = '{"payload":{"firstnames":"Peter Niek","firstname":"Peter","familyname":"Langenkamp","prefix":""}}';
+        // $data = json_decode($content, false);
         
+        // TODO: Validation
+
         // Check status
-        // success --> continue
-        // cancelled --> abort
-        
-        // Check if payload is specified
-        if (!isset($data->payload)) {
-            throw new Exception("Payload of attestation not provided{$data}", 400);
+        $status = $token->getClaim('status');
+        if($status!='success') {
+            return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
         
-        $form->put($data->payload);
+        // // Check if payload is specified
+        // if (!isset($data->payload)) {
+        //     throw new Exception("Payload of attestation not provided", 400);
+        // }
+        
+        // $form->put($data->payload);
+        $form->put($token->getClaim('data'));
         // TODO: also put metadata of attestation
         
         $transaction->runExecEngine()->close();
 
-        $respContent = [ 'content'               => $data
+        // $respContent = [ 'content'               => $data
+        $respContent = [ 'content'               => array('payload'=>$token->getClaim('data'))
                        , 'notifications'         => $ampersandApp->userLog()->getAll()
                        , 'invariantRulesHold'    => $transaction->invariantRulesHold()
                        , 'isCommitted'           => $transaction->isCommitted()
                        , 'sessionRefreshAdvice'  => $angularApp->getSessionRefreshAdvice()
                        , 'navTo'                 => $angularApp->getNavToResponse($transaction->isCommitted() ? 'COMMIT' : 'ROLLBACK')
                        ];
-        
+
         return $response->withJson($respContent, 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     });
 
@@ -193,7 +205,7 @@ $api->group('/ssif', function () {
                        , 'sessionRefreshAdvice'  => $angularApp->getSessionRefreshAdvice()
                        , 'navTo'                 => $angularApp->getNavToResponse($transaction->isCommitted() ? 'COMMIT' : 'ROLLBACK')
                        ];
-        
+
         return $response->withJson($respContent, 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     });
 })->add(function (Request $request, Response $response, callable $next) {
