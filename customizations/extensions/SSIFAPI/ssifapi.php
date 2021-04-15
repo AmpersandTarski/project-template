@@ -64,8 +64,17 @@ $api->group('/ssif', function () {
         // Check status
         $status = $token->getClaim('status');
         if($status!='success') {
+            // Set cancelled flag
+            $obj = (object) array('cancelledFlag' => True);
+            $form->put($obj);
+            $transaction->runExecEngine()->close();
             return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
+
+        // Set success flag
+        $obj = (object) array('successFlag' => True);
+        $form->put($obj);
+        $transaction->runExecEngine()->close();
         
         $jwt = $args['token'];
         return '{"jwt": "'.$jwt.'"}';
@@ -129,6 +138,10 @@ $api->group('/ssif', function () {
         // Check status
         $status = $token->getClaim('status');
         if($status!='success') {
+            // Set cancelled flag
+            $obj = (object) array('cancelledFlag' => True);
+            $form->put($obj);
+            $transaction->runExecEngine()->close();
             return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
         
@@ -140,6 +153,10 @@ $api->group('/ssif', function () {
         // $form->put($data->payload);
         $form->put($token->getClaim('data'));
         // TODO: also put metadata of attestation
+
+        // Set success flag
+        $obj = (object) array('successFlag' => True);
+        $form->put($obj);
         
         $transaction->runExecEngine()->close();
 

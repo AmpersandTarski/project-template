@@ -92,6 +92,8 @@ dataIssueForm_addressLine2 :: DataIssueForm * AddressLine2      [UNI]
 dataIssueForm_postalCode :: DataIssueForm * PostelCode          [UNI]
 dataIssueForm_city :: DataIssueForm * City                      [UNI]
 dataIssueForm_country :: DataIssueForm * Country                [UNI]
+dataIssueForm_Cancelled :: DataIssueForm * DataIssueForm        [PROP]
+dataIssueForm_Success :: DataIssueForm * DataIssueForm          [PROP]
 
 
 dataIssueForm_Idfr :: DataIssueForm * Idfr             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
@@ -106,7 +108,7 @@ VIEW DataIssueForm : DataIssueForm
     { "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
     , "token"            : dataIssueForm_Idfr                      -- Token that provides access to the interface
     , "subjectId"        : I                                 -- Subject from which the attestation is to be created
-    , "credentialType"   : TXT "NameCredential"   -- Interface name that will provide the attestation
+    , "credentialType"   : TXT "AddressCredential"   -- Interface name that will provide the attestation
     } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
 
 --[ISSUE API]
@@ -119,6 +121,8 @@ API "DataIssue": dataIssueForm_Idfr~;I[DataIssueForm] CRud BOX
     , "country": dataIssueForm_country CRUd
     ]                                                
 
+-- Pass this interface ID to the DataIssueForm? An interface/api is needed to pass the success/cancelled status to, or alternatively 
+-- successFlag and cancelledFlag relations could be passed separately related to subjectId
 --[Interface for issuing Data]
 INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
     [ "DataIssueForm": I CRuD
@@ -127,6 +131,8 @@ INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
     , "postalCode" : dataIssueForm_postalCode CRUd
     , "city" : dataIssueForm_city CRUd
     , "country": dataIssueForm_country CRUd
+    -- , "successFlag": dataIssueForm_Success CRUd
+    -- , "cancelledFlag": dataIssueForm_Cancelled CRUd
     ]
 
 dataIssueFormMsg :: DataIssueForm * IfcText -- messages to inform the user
@@ -152,6 +158,8 @@ dvfFirstNames :: DataVerifyForm * FirstNames [UNI]
 dvfFirstName :: DataVerifyForm * FirstName [UNI]
 dvfFamilyName :: DataVerifyForm * FamilyName [UNI]
 dvfPrefix :: DataVerifyForm * Prefix [UNI]
+dvfCancelled :: DataVerifyForm * DataVerifyForm [PROP]
+dvfSuccess :: DataVerifyForm * DataVerifyForm [PROP]
 
 --[Example: Verify NameCredential]
 VIEW DataVerifyForm : DataVerifyForm 
@@ -176,15 +184,19 @@ API "DataVerify": I[DataVerifyForm] CRud BOX
    , "firstname" : dvfFirstName CRUd
    , "familyname" : dvfFamilyName CRUd
    , "prefix" : dvfPrefix CRUd
+   , "successFlag": dvfSuccess CRUd
+   , "cancelledFlag": dvfCancelled CRUd
    ]
 
 --[Interface for verifying Data]
-INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRud BOX <TABLE>
-    [ "DataVerifyForm": I CRuD
-    , "firstnames" : dvfFirstNames CRUd
-    , "firstname" : dvfFirstName CRUd
-    , "familyname" : dvfFamilyName CRUd
-    , "prefix" : dvfPrefix CRUd
+INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRuD BOX <TABLE>
+    [ "DataVerifyForm": I CRud
+    , "firstnames" : dvfFirstNames cRud
+    , "firstname" : dvfFirstName cRud
+    , "familyname" : dvfFamilyName cRud
+    , "prefix" : dvfPrefix cRud
+    , "successFlag": dvfSuccess cRUd
+    , "cancelledFlag": dvfCancelled cRUd
     ]
 
 dataVerifyFormMsg :: DataVerifyForm * IfcText -- messages to inform the user
