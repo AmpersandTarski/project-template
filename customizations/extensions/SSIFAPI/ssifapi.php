@@ -24,8 +24,10 @@ $api->group('/ssif', function () {
         $credentialToken = $args['token']; // an access token
         $subjectId = $request->getQueryParam('subjectId'); // the subject (Ampersand atom identifier for which a credential must be issued)
         $credentialType = rawurldecode($request->getQueryParam('credentialType')); // URI of the credential type that needs to be issued
+        $finalRedirect = rawurlencode($request->getQueryParam('finalRedirect', $request->getUri()->getHost()));
+
         // $callbackUrl = "http://localhost/api/v1/ssif/credential-issue-response/";
-        $callbackUrl = "http://".rawurldecode($request->getUri()->getHost())."/api/v1/ssif/credential-issue-response/";
+        $callbackUrl = "http://".rawurldecode($request->getUri()->getHost())."/api/v1/ssif/credential-issue-response?finalRedirect={$finalRedirect}&token=";
         // $callbackUrl = rawurldecode($request->getQueryParam('callbackUrl', $request->getUri()->getHost()));
 
         // Prepare
@@ -52,29 +54,38 @@ $api->group('/ssif', function () {
     });
 
     // API method to process 'credential-issue-response' from the SSI service
-    $this->get('/credential-issue-response/{token}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-issue-response', function (Request $request, Response $response, $args = []) {
         // Parse jwt
-        $token = $args['token'];
+        $token = $request->getQueryParam('token');
         $token = (new Parser())->parse((string) $token); // Parses from a string
         $token->getHeaders(); // Retrieves the token header
         $token->getClaims(); // Retrieves the token claims
         
         // TODO: Validation
 
+        $finalRedirect = rawurldecode($request->getQueryParam('finalRedirect'));
+
         // Check status
         $status = $token->getClaim('status');
         if($status!='success') {
-            // Set cancelled flag
-            $obj = (object) array('cancelledFlag' => True);
-            $form->put($obj);
-            $transaction->runExecEngine()->close();
+            // // Set cancelled flag
+            // $obj = (object) array('cancelledFlag' => True);
+            // $form->put($obj);
+            // $transaction->runExecEngine()->close();
+
+            // 301 Redirect back to prototype
+            return $response->withRedirect("{$finalRedirect}");
+
             return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
 
-        // Set success flag
-        $obj = (object) array('successFlag' => True);
-        $form->put($obj);
-        $transaction->runExecEngine()->close();
+        // // Set success flag
+        // $obj = (object) array('successFlag' => True);
+        // $form->put($obj);
+        // $transaction->runExecEngine()->close();
+
+        // 301 Redirect back to prototype
+        return $response->withRedirect("{$finalRedirect}");
         
         $jwt = $args['token'];
         return '{"jwt": "'.$jwt.'"}';
@@ -124,7 +135,6 @@ $api->group('/ssif', function () {
         $transaction = $ampersandApp->newTransaction();
         
         // Parse jwt
-        // $token = $args['token'];
         $token = $request->getQueryParam('token');
         $token = (new Parser())->parse((string) $token); // Parses from a string
         $token->getHeaders(); // Retrieves the token header
