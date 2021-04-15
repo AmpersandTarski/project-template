@@ -87,11 +87,12 @@ $api->group('/ssif', function () {
         $formId = $args['formId'];
         $ifcId = $args['ifcId'];
         $credentialType = rawurldecode($request->getQueryParam('credentialType')); // URI of the credential type that is requested
+        $finalRedirect = rawurlencode($request->getQueryParam('finalRedirect', $request->getUri()->getHost()));
 
         // Prepare
         $jti = bin2hex(random_bytes(12));
         // $callbackUrl = $request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}";
-        $callbackUrl = 'http://'.$request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}/{$ifcId}/";
+        $callbackUrl = 'http://'.$request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}/{$ifcId}?finalRedirect={$finalRedirect}&token=";
 
         // JWT interface with SSI service
         // See: https://ci.tno.nl/gitlab/ssi-lab/developer-docs/-/blob/master/jwt-descriptions/jwt-credential-verify-request.md
@@ -112,7 +113,7 @@ $api->group('/ssif', function () {
     });
 
     // API method to process 'credential-verify-response' from the SSI service
-    $this->get('/credential-verify-response/{formId}/{ifcId}/{token}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-verify-response/{formId}/{ifcId}', function (Request $request, Response $response, $args = []) {
         /** @var \Ampersand\AmpersandApp $ampersandApp */
         $ampersandApp = $this['ampersand_app'];
         /** @var \Ampersand\AngularApp $angularApp */
@@ -123,7 +124,8 @@ $api->group('/ssif', function () {
         $transaction = $ampersandApp->newTransaction();
         
         // Parse jwt
-        $token = $args['token'];
+        // $token = $args['token'];
+        $token = $request->getQueryParam('token');
         $token = (new Parser())->parse((string) $token); // Parses from a string
         $token->getHeaders(); // Retrieves the token header
         $token->getClaims(); // Retrieves the token claims
@@ -135,6 +137,8 @@ $api->group('/ssif', function () {
         
         // TODO: Validation
 
+        $finalRedirect = rawurldecode($request->getQueryParam('finalRedirect'));
+
         // Check status
         $status = $token->getClaim('status');
         if($status!='success') {
@@ -142,6 +146,10 @@ $api->group('/ssif', function () {
             $obj = (object) array('cancelledFlag' => True);
             $form->put($obj);
             $transaction->runExecEngine()->close();
+
+            // 301 Redirect back to prototype
+            return $response->withRedirect("{$finalRedirect}");
+
             return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
         
@@ -159,6 +167,10 @@ $api->group('/ssif', function () {
         $form->put($obj);
         
         $transaction->runExecEngine()->close();
+
+        // 301 Redirect back to prototype
+        return $response->withRedirect("{$finalRedirect}");
+
 
         // $respContent = [ 'content'               => $data
         $respContent = [ 'content'               => array('payload'=>$token->getClaim('data'))
