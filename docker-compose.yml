@@ -16,8 +16,8 @@ services:
       - AMPERSAND_DBHOST=prototype-db # refers to service below
 
       - SSI_SERVICE_ENDPOINT=https://service.ssi-lab.nl
-      - SSI_SERVICE_MY_ORG_ID=73347d34-afc5-4140-9bbc-b155b2178ed5
-      - SSI_SERVICE_SHARED_SECRET=a931d0a885b7a7966cee9aa8e78304bd2ed5ff4340c7425ec372505756f77337 # Demo secret. Don't put production value here
+      - SSI_SERVICE_MY_ORG_ID=5a2991ef-f44a-4d89-a400-490bf91f59b5 #73347d34-afc5-4140-9bbc-b155b2178ed5
+      - SSI_SERVICE_SHARED_SECRET=1c8192628702a637eb78cf5be072fa40b085276af4a3a964e426ee1b03c071d6 #a931d0a885b7a7966cee9aa8e78304bd2ed5ff4340c7425ec372505756f77337 # Demo secret. Don't put production value here
     volumes:
       - ./:/usr/local/project
     restart: always
