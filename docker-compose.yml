@@ -26,7 +26,7 @@ services:
   
   prototype-db:
     container_name: prototype-db
-    image: docker.pkg.github.com/ampersandtarski/prototype-db/prototype-db
+    image: mariadb:10.4
     command: ["--sql-mode=ANSI,TRADITIONAL"]
     restart: unless-stopped
     environment:
@@ -36,6 +36,7 @@ services:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
     volumes:
       - db-data:/var/lib/mysql
+      - ./db-init-scripts:/docker-entrypoint-initdb.d # script to setup db authorization for user ampersand.
     networks:
       - db
 
