@@ -15,19 +15,21 @@ global $api;
 $api->group('/ssif', function () {
 
     // API method to redirect the user with an 'credential-issue-request' to the SSI service
-    $this->get('/credential-issue-request/{ifcId}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-issue-request/{ifcId}/{metaIfcId}', function (Request $request, Response $response, $args = []) {
         /** @var \Ampersand\AmpersandApp $ampersandApp */
         $ampersandApp = $this['ampersand_app'];
         
         // Input
         $ifcId = $args['ifcId']; // name of Ampersand interface that specifies credential data
+        $metaIfcId = $args['metaIfcId']; // name of Ampersand interface for receiving credential meta data
         $credentialToken = $args['token']; // an access token
         $subjectId = $request->getQueryParam('subjectId'); // the subject (Ampersand atom identifier for which a credential must be issued)
+        $credmdId = $request->getQueryParam('credmdId'); // the metadata subject (Ampersand atom identifier belonging to the credential that must be issued)
         $credentialType = rawurldecode($request->getQueryParam('credentialType')); // URI of the credential type that needs to be issued
         $finalRedirect = rawurlencode($request->getQueryParam('finalRedirect', $request->getUri()->getHost()));
 
         // $callbackUrl = "http://localhost/api/v1/ssif/credential-issue-response/";
-        $callbackUrl = "http://".rawurldecode($request->getUri()->getHost())."/api/v1/ssif/credential-issue-response?finalRedirect={$finalRedirect}&token=";
+        $callbackUrl = "http://".rawurldecode($request->getUri()->getHost())."/api/v1/ssif/credential-issue-response/{$credmdId}/{$metaIfcId}?finalRedirect={$finalRedirect}&token=";
         // $callbackUrl = rawurldecode($request->getQueryParam('callbackUrl', $request->getUri()->getHost()));
 
         // Prepare
@@ -54,7 +56,13 @@ $api->group('/ssif', function () {
     });
 
     // API method to process 'credential-issue-response' from the SSI service
-    $this->get('/credential-issue-response', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-issue-response/{credmdId}/{metaIfcId}', function (Request $request, Response $response, $args = []) {
+        /** @var \Ampersand\AmpersandApp $ampersandApp */
+        $ampersandApp = $this['ampersand_app'];
+
+        $metaIfcId = $args['metaIfcId']; // name of Ampersand interface for receiving credential meta data
+        $credmdId = $args['credmdId']; // the metadata subject (Ampersand atom identifier belonging to the credential that must be issued)
+        
         // Parse jwt
         $token = $request->getQueryParam('token');
         $token = (new Parser())->parse((string) $token); // Parses from a string
@@ -65,13 +73,16 @@ $api->group('/ssif', function () {
 
         $finalRedirect = rawurldecode($request->getQueryParam('finalRedirect'));
 
+        $transaction = $ampersandApp->newTransaction();
+        $metaResource = ResourceList::makeFromInterface($credmdId, $metaIfcId)->one($credmdId);
+
         // Check status
         $status = $token->getClaim('status');
         if($status!='success') {
-            // // Set cancelled flag
-            // $obj = (object) array('cancelledFlag' => True);
-            // $form->put($obj);
-            // $transaction->runExecEngine()->close();
+            // Set canceled flag
+            $obj = (object) array('canceledFlag' => True);
+            $metaResource->put($obj);
+            $transaction->runExecEngine()->close();
 
             // 301 Redirect back to prototype
             return $response->withRedirect("{$finalRedirect}");
@@ -79,10 +90,10 @@ $api->group('/ssif', function () {
             return $response->withJson(['status' => $status], 200, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         }
 
-        // // Set success flag
-        // $obj = (object) array('successFlag' => True);
-        // $form->put($obj);
-        // $transaction->runExecEngine()->close();
+        // Set success flag
+        $obj = (object) array('successFlag' => True);
+        $metaResource->put($obj);
+        $transaction->runExecEngine()->close();
 
         // 301 Redirect back to prototype
         return $response->withRedirect("{$finalRedirect}");
@@ -92,18 +103,20 @@ $api->group('/ssif', function () {
     });
 
     // API method to redirect the user with an 'credential-verify-request' to the SSI service
-    $this->get('/credential-verify-request/{formId}/{ifcId}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-verify-request/{formId}/{ifcId}/{credmdId}/{metaIfcId}', function (Request $request, Response $response, $args = []) {
         
         // Input
         $formId = $args['formId'];
         $ifcId = $args['ifcId'];
+        $credmdId = $args['credmdId'];
+        $metaIfcId = $args['metaIfcId'];
         $credentialType = rawurldecode($request->getQueryParam('credentialType')); // URI of the credential type that is requested
         $finalRedirect = rawurlencode($request->getQueryParam('finalRedirect', $request->getUri()->getHost()));
 
         // Prepare
         $jti = bin2hex(random_bytes(12));
         // $callbackUrl = $request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}";
-        $callbackUrl = 'http://'.$request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}/{$ifcId}?finalRedirect={$finalRedirect}&token=";
+        $callbackUrl = 'http://'.$request->getUri()->getHost() . "/api/v1/ssif/credential-verify-response/{$formId}/{$ifcId}/{$credmdId}/{$metaIfcId}?finalRedirect={$finalRedirect}&token=";
 
         // JWT interface with SSI service
         // See: https://ci.tno.nl/gitlab/ssi-lab/developer-docs/-/blob/master/jwt-descriptions/jwt-credential-verify-request.md
@@ -124,13 +137,14 @@ $api->group('/ssif', function () {
     });
 
     // API method to process 'credential-verify-response' from the SSI service
-    $this->get('/credential-verify-response/{formId}/{ifcId}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-verify-response/{formId}/{ifcId}/{credmdId}/{metaIfcId}', function (Request $request, Response $response, $args = []) {
         /** @var \Ampersand\AmpersandApp $ampersandApp */
         $ampersandApp = $this['ampersand_app'];
         /** @var \Ampersand\AngularApp $angularApp */
         $angularApp = $this['angular_app'];
         
         $form = ResourceList::makeFromInterface($args['formId'], $args['ifcId'])->one($args['formId']);
+        $metaForm = ResourceList::makeFromInterface($args['credmdId'], $args['metaIfcId'])->one($args['credmdId']);
         
         $transaction = $ampersandApp->newTransaction();
         
@@ -152,9 +166,9 @@ $api->group('/ssif', function () {
         // Check status
         $status = $token->getClaim('status');
         if($status!='success') {
-            // Set cancelled flag
-            $obj = (object) array('cancelledFlag' => True);
-            $form->put($obj);
+            // Set canceled flag
+            $obj = (object) array('canceledFlag' => True);
+            $metaForm->put($obj);
             $transaction->runExecEngine()->close();
 
             // 301 Redirect back to prototype
@@ -174,7 +188,7 @@ $api->group('/ssif', function () {
 
         // Set success flag
         $obj = (object) array('successFlag' => True);
-        $form->put($obj);
+        $metaForm->put($obj);
         
         $transaction->runExecEngine()->close();
 

@@ -81,57 +81,88 @@ INTERFACE "Data Import": I[DataUploadForm] cRud BOX <RAW>
 
 
 
+--[METADATA]
+credmdRequestId :: CredMetaData * Id [UNI]
+credmdType :: CredMetaData * Type [UNI]
+credmdStatus :: CredMetaData * Status [UNI]
+credmdConnector :: CredMetaData * Connector [UNI]
+credmdIat :: CredMetaData * Iat [UNI]
+credmdAud :: CredMetaData * Aud [UNI]
+credmdIss :: CredMetaData * Iss [UNI]
+credmdSub :: CredMetaData * Sub [UNI]
+credmdIsSuccess :: CredMetaData * CredMetaData [PROP]
+credmdIsCanceled :: CredMetaData * CredMetaData [PROP]
+
+REPRESENT Id, Type, Status, Connector, Iat, Aud, Iss, Sub TYPE ALPHANUMERIC
+
+API "CredMetaData": I[CredMetaData] CRud BOX
+   [ "requestId": credmdRequestId CRUd
+   , "type": credmdType CRUd
+   , "status": credmdStatus CRUd
+   , "connector": credmdConnector CRUd
+   , "iat": credmdIat CRUd
+   , "aud": credmdAud CRUd
+   , "iss": credmdIss CRUd
+   , "sub": credmdSub CRUd
+   , "successFlag": credmdIsSuccess CRUd
+   , "canceledFlag": credmdIsCanceled CRUd
+   ]
+
 --[ISSUE]
 
 CONCEPT DataIssueForm "form that is used to issue Data"
 CLASSIFY DataIssueForm ISA Form
 
 --[DataIssueForm Structure]
-dataIssueForm_addressLine1 :: DataIssueForm * AddressLine1      [UNI]
-dataIssueForm_addressLine2 :: DataIssueForm * AddressLine2      [UNI]
-dataIssueForm_postalCode :: DataIssueForm * PostelCode          [UNI]
-dataIssueForm_city :: DataIssueForm * City                      [UNI]
-dataIssueForm_country :: DataIssueForm * Country                [UNI]
-dataIssueForm_Cancelled :: DataIssueForm * DataIssueForm        [PROP]
-dataIssueForm_Success :: DataIssueForm * DataIssueForm          [PROP]
+difAddressLine1 :: DataIssueForm * AddressLine1      [UNI]
+difAddressLine2 :: DataIssueForm * AddressLine2      [UNI]
+difPostalCode :: DataIssueForm * PostelCode          [UNI]
+difCity :: DataIssueForm * City                      [UNI]
+difCountry :: DataIssueForm * Country                [UNI]
+-- difCanceled :: DataIssueForm * DataIssueForm        [PROP]
+-- difSuccess :: DataIssueForm * DataIssueForm          [PROP]
 
 
-dataIssueForm_Idfr :: DataIssueForm * Idfr             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
-ROLE ExecEngine MAINTAINS "Generate dataIssueForm_Idfr if it does not exist" 
-RULE "Generate dataIssueForm_Idfr if it does not exist": I |- dataIssueForm_Idfr;dataIssueForm_Idfr~ 
-VIOLATION (TXT "{EX} InsPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Idfr;{php}'attid:paymentrequest:'.bin2hex(random_bytes(20))")
-ROLE ExecEngine MAINTAINS "dataIssueForm_Idfrs must be unique, and only available when needed" 
-RULE "dataIssueForm_Idfrs must be unique, and only available when needed": dataIssueForm_Idfr;dataIssueForm_Idfr~ |- I --pmtrxIsAttestable
-VIOLATION (TXT "{EX} DelPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Idfr;", TGT I) -- Deleting it is ok; it is automatically regenerated
+difCredMetaData :: DataIssueForm * CredMetaData             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
+ROLE ExecEngine MAINTAINS "Generate difCredMetaData if it does not exist" 
+RULE "Generate difCredMetaData if it does not exist": I |- difCredMetaData;difCredMetaData~ 
+VIOLATION ( TXT "{EX} InsAtom;CredMetaData"
+          , TXT "{EX} InsPair;difCredMetaData;DataIssueForm;", SRC I, TXT ";CredMetaData;_NEW"
+          )
+ROLE ExecEngine MAINTAINS "difCredMetaData must be unique, and only available when needed" 
+RULE "difCredMetaData must be unique, and only available when needed": difCredMetaData;difCredMetaData~ |- I
+VIOLATION (TXT "{EX} DelPair;difCredMetaData;DataIssueForm;", SRC I, TXT ";CredMetaData;", TGT I) -- Deleting it is ok; it is automatically regenerated
 
 VIEW DataIssueForm : DataIssueForm
-    { "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
+    { "credentialType"   : TXT "AddressCredential"   -- Type of credential that is to be issued
     , "subjectId"        : I                                 -- Subject from which the attestation is to be created
-    , "credentialType"   : TXT "AddressCredential"   -- Interface name that will provide the attestation
+    , "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
+    , "metaIfcId"        : TXT "CredMetaData" -- Ampersand API INTERFACE for receiving metadata
+    , "credmdId"           : difCredMetaData -- Atom identifier of the metadata subject belonging to the subject
     } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
 
 --[ISSUE API]
 --! Labels of the Issue-API below must match the labels and structure of the JSON data that we weant to issue
 API "DataIssue": I[DataIssueForm] CRud BOX
-    [ "addressLine1":  dataIssueForm_addressLine1 CRUd
-    , "addressLine2" : dataIssueForm_addressLine2 CRUd
-    , "postalCode" : dataIssueForm_postalCode CRUd
-    , "city" : dataIssueForm_city CRUd
-    , "country": dataIssueForm_country CRUd
+    [ "addressLine1":  difAddressLine1 CRUd
+    , "addressLine2" : difAddressLine2 CRUd
+    , "postalCode" : difPostalCode CRUd
+    , "city" : difCity CRUd
+    , "country": difCountry CRUd
     ]                                                
 
--- Pass this interface ID to the DataIssueForm? An interface/api is needed to pass the success/cancelled status to, or alternatively 
--- successFlag and cancelledFlag relations could be passed separately related to subjectId
+-- Pass this interface ID to the DataIssueForm? An interface/api is needed to pass the success/canceled status to, or alternatively 
+-- successFlag and canceledFlag relations could be passed separately related to subjectId
 --[Interface for issuing Data]
 INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
     [ "DataIssueForm": I CRuD
-    , "addressLine1":  dataIssueForm_addressLine1 CRUd
-    , "addressLine2" : dataIssueForm_addressLine2 CRUd
-    , "postalCode" : dataIssueForm_postalCode CRUd
-    , "city" : dataIssueForm_city CRUd
-    , "country": dataIssueForm_country CRUd
-    -- , "successFlag": dataIssueForm_Success CRUd
-    -- , "cancelledFlag": dataIssueForm_Cancelled CRUd
+    , "addressLine1":  difAddressLine1 CRUd
+    , "addressLine2" : difAddressLine2 CRUd
+    , "postalCode" : difPostalCode CRUd
+    , "city" : difCity CRUd
+    , "country": difCountry CRUd
+    -- , "successFlag": difSuccess CRUd
+    -- , "canceledFlag": difCanceled CRUd
     ]
 
 dataIssueFormMsg :: DataIssueForm * IfcText -- messages to inform the user
@@ -140,6 +171,10 @@ POPULATION IfcText CONTAINS [ "Issue Data" ]
 INTERFACE "Data Issue": I[DataIssueForm] cRud BOX <RAW>
     [ "Issuetext": V;"Issue Data"[IfcText] cRud <STRONG>
     , "Issue": I cRud <DataIssueForm>
+    , "CredMetaData": difCredMetaData CRud BOX <TABLE>
+      [ "successFlag": credmdIsSuccess cRUd
+      , "canceledFlag": credmdIsCanceled cRUd
+      ]
     ]
 
 
@@ -157,14 +192,26 @@ dvfFirstNames :: DataVerifyForm * FirstNames [UNI]
 dvfFirstName :: DataVerifyForm * FirstName [UNI]
 dvfFamilyName :: DataVerifyForm * FamilyName [UNI]
 dvfPrefix :: DataVerifyForm * Prefix [UNI]
-dvfCancelled :: DataVerifyForm * DataVerifyForm [PROP]
-dvfSuccess :: DataVerifyForm * DataVerifyForm [PROP]
+-- dvfCanceled :: DataVerifyForm * DataVerifyForm [PROP]
+-- dvfSuccess :: DataVerifyForm * DataVerifyForm [PROP]
+
+dvfCredMetaData :: DataVerifyForm * CredMetaData             [INJ,UNI]  -- The (distributed) ID that the DataVerifyForm can be identified with
+ROLE ExecEngine MAINTAINS "Generate dvfCredMetaData if it does not exist" 
+RULE "Generate dvfCredMetaData if it does not exist": I |- dvfCredMetaData;dvfCredMetaData~ 
+VIOLATION ( TXT "{EX} InsAtom;CredMetaData"
+          , TXT "{EX} InsPair;dvfCredMetaData;DataVerifyForm;", SRC I, TXT ";CredMetaData;_NEW"
+          )
+ROLE ExecEngine MAINTAINS "dvfCredMetaData must be unique, and only available when needed" 
+RULE "dvfCredMetaData must be unique, and only available when needed": dvfCredMetaData;dvfCredMetaData~ |- I
+VIOLATION (TXT "{EX} DelPair;dvfCredMetaData;DataVerifyForm;", SRC I, TXT ";CredMetaData;", TGT I) -- Deleting it is ok; it is automatically regenerated
 
 --[Example: Verify NameCredential]
 VIEW DataVerifyForm : DataVerifyForm 
-  { "formId"         : I -- Atom identifier of the form to be filled in
-  , "credentialType" : TXT "NameCredential"
+  { "credentialType" : TXT "NameCredential" -- Type of credential that is to be verified
+  , "formId"         : I -- Atom identifier of the form to be filled in
   , "ifcId"          : TXT "DataVerify"  -- Interface/API name that will take the attestation
+  , "metaIfcId"        : TXT "CredMetaData" -- Ampersand API INTERFACE for receiving metadata
+  , "credmdId"           : dvfCredMetaData -- Atom identifier of the metadata subject belonging to the subject
   } HTML TEMPLATE "View-CredentialVerifyRequest.html" ENDVIEW
 
 --[Verify API]
@@ -183,8 +230,8 @@ API "DataVerify": I[DataVerifyForm] CRud BOX
    , "firstname" : dvfFirstName CRUd
    , "familyname" : dvfFamilyName CRUd
    , "prefix" : dvfPrefix CRUd
-   , "successFlag": dvfSuccess CRUd
-   , "cancelledFlag": dvfCancelled CRUd
+--    , "successFlag": dvfSuccess CRUd
+--    , "canceledFlag": dvfCanceled CRUd
    ]
 
 --[Interface for verifying Data]
@@ -194,8 +241,12 @@ INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRuD BOX <TABLE>
     , "firstname" : dvfFirstName cRud
     , "familyname" : dvfFamilyName cRud
     , "prefix" : dvfPrefix cRud
-    , "successFlag": dvfSuccess cRUd
-    , "cancelledFlag": dvfCancelled cRUd
+    , "CredMetaData": dvfCredMetaData CRud BOX <TABLE>
+      [ "successFlag": credmdIsSuccess cRUd
+      , "canceledFlag": credmdIsCanceled cRUd
+      ]
+    -- , "successFlag": dvfSuccess cRUd
+    -- , "canceledFlag": dvfCanceled cRUd
     ]
 
 dataVerifyFormMsg :: DataVerifyForm * IfcText -- messages to inform the user
@@ -209,6 +260,18 @@ INTERFACE "Data Verify": I[DataVerifyForm] cRud BOX <RAW>
       , "firstname" : dvfFirstName cRud
       , "familyname" : dvfFamilyName cRud
       , "prefix" : dvfPrefix cRud
+      ]
+    , "CredMetaData": dvfCredMetaData CRud BOX <TABLE>
+      [ "requestId": credmdRequestId CRUd
+      , "type": credmdType CRUd
+      , "status": credmdStatus CRUd
+      , "connector": credmdConnector CRUd
+      , "iat": credmdIat CRUd
+      , "aud": credmdAud CRUd
+      , "iss": credmdIss CRUd
+      , "sub": credmdSub CRUd
+      , "successFlag": credmdIsSuccess cRUd
+      , "canceledFlag": credmdIsCanceled cRUd
       ]
     ]
 
