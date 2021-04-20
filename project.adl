@@ -1,3 +1,262 @@
-CONTEXT MyProject
+CONTEXT "Data_Import"
+
+-- INCLUDE "DataModel.adl"
+
+CONCEPT DataUploadForm "form that is used to import Data"
+CLASSIFY DataUploadForm ISA Form
+
+--[DataUploadForm Structure]
+dataUploadForm_Key1 :: DataUploadForm * Key1             [UNI]
+dataUploadForm_Key2 :: DataUploadForm * Key2             [UNI]
+dataUploadForm_Key3 :: DataUploadForm * Key3             [UNI]
+dataUploadForm_Key4 :: DataUploadForm * Key4         
+
+-- Key, subkey
+key3Subkey1 :: Key3 * SubKey1             [UNI]
+key3Subkey2 :: Key3 * SubKey2             [UNI]
+
+key4Subkey3 :: Key4 * SubKey3             [UNI]
+key4Subkey4 :: Key4 * SubKey4             [UNI]
+
+
+VIEW DataUploadForm : DataUploadForm 
+  { "formType": TXT "DataUploadForm" -- Concept name of the form to be filled in
+  , "formId" : I -- Form
+  , "proxy" : TXT "test" -- URL of the endpoint that accepts the attestation
+  , "ifcId" : TXT "DataUpload" -- Interface/API name that will take the attestation
+  , "attestationType" : TXT "test2"
+  , "uploadHint" : TXT "Upload JSON file with Data" -- for QR popup this is postfixed with " with the SSIF app"
+  } ENDVIEW
+
+--[INPUT API]
+--! Labels of the Input-API below must match the labels and structure of the JSON from which we want to import the Data
+API "DataUpload": I[DataUploadForm] CRud BOX -- DeclVergoedingAtt --> ProvisionsReqForm
+    [ "Key1":  dataUploadForm_Key1 CRUd
+    , "Key2" : dataUploadForm_Key2 CRUd
+    , "Key3" : dataUploadForm_Key3 CRUd BOX
+        [ "SubKey1" : key3Subkey1 CRUd
+        , "SubKey2" : key3Subkey2 CRUd
+        ]
+    , "Key4" : dataUploadForm_Key4 CRUd BOX
+        [ "SubKey3" : key4Subkey3 CRUd
+        , "SubKey4" : key4Subkey4 CRUd
+        ]
+    ]                                                
+
+--[Interface for importing Data from a JSON file]
+INTERFACE "Data Upload Forms": V[SESSION*DataUploadForm] CRud BOX <TABLE>
+    [ "DataUploadForm": I CRuD
+    , "Key1": dataUploadForm_Key1 cRud
+    , "Key2" : dataUploadForm_Key2 cRud
+    , "Key3" : dataUploadForm_Key3 cRud BOX
+        [ "SubKey1" : key3Subkey1 CRUd
+        , "SubKey2" : key3Subkey2 CRUd
+        ]
+    , "Key4" : dataUploadForm_Key4 cRud BOX
+        [ "SubKey3" : key4Subkey3 CRUd
+        , "SubKey4" : key4Subkey4 CRUd
+        ]
+    ]
+
+dataUploadFormMsg :: DataUploadForm * IfcText -- messages to inform the user
+POPULATION IfcText CONTAINS [ "Upload Data" ]
+VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
+INTERFACE "Data Import": I[DataUploadForm] cRud BOX <RAW>
+    [ "Uploadtext": V;"Upload Data"[IfcText] cRud <STRONG>
+    ,   "Import": I cRud <DataUploadForm> BOX <SSIFORM>
+        [ "Key1": dataUploadForm_Key1 cRud
+        , "Key2" : dataUploadForm_Key2 cRud
+        , "Key3" : dataUploadForm_Key3 cRud BOX
+            [ "SubKey1" : key3Subkey1 CRUd
+            , "SubKey2" : key3Subkey2 CRUd
+            ]
+        ]
+    , "Key4" : dataUploadForm_Key4 cRud BOX
+        [ "SubKey3" : key4Subkey3 CRUd
+        , "SubKey4" : key4Subkey4 CRUd
+        ]
+    ]
+
+
+
+
+
+--[METADATA]
+credmdRequestId :: CredMetaData * Id [UNI]
+credmdType :: CredMetaData * Type [UNI]
+credmdStatus :: CredMetaData * Status [UNI]
+credmdConnector :: CredMetaData * Connector [UNI]
+credmdIat :: CredMetaData * Iat [UNI]
+credmdAud :: CredMetaData * Aud [UNI]
+credmdIss :: CredMetaData * Iss [UNI]
+credmdSub :: CredMetaData * Sub [UNI]
+credmdIsSuccess :: CredMetaData * CredMetaData [PROP]
+credmdIsCanceled :: CredMetaData * CredMetaData [PROP]
+
+REPRESENT Id, Type, Status, Connector, Iat, Aud, Iss, Sub TYPE ALPHANUMERIC
+
+API "CredMetaData": I[CredMetaData] CRud BOX
+   [ "requestId": credmdRequestId CRUd
+   , "type": credmdType CRUd
+   , "status": credmdStatus CRUd
+   , "connector": credmdConnector CRUd
+   , "iat": credmdIat CRUd
+   , "aud": credmdAud CRUd
+   , "iss": credmdIss CRUd
+   , "sub": credmdSub CRUd
+   , "successFlag": credmdIsSuccess CRUd
+   , "canceledFlag": credmdIsCanceled CRUd
+   ]
+
+--[ISSUE]
+
+CONCEPT DataIssueForm "form that is used to issue Data"
+CLASSIFY DataIssueForm ISA Form
+
+--[DataIssueForm Structure]
+difAddressLine1 :: DataIssueForm * AddressLine1      [UNI]
+difAddressLine2 :: DataIssueForm * AddressLine2      [UNI]
+difPostalCode :: DataIssueForm * PostelCode          [UNI]
+difCity :: DataIssueForm * City                      [UNI]
+difCountry :: DataIssueForm * Country                [UNI]
+
+
+difCredMetaData :: DataIssueForm * CredMetaData             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
+ROLE ExecEngine MAINTAINS "Generate difCredMetaData if it does not exist" 
+RULE "Generate difCredMetaData if it does not exist": I |- difCredMetaData;difCredMetaData~ 
+VIOLATION ( TXT "{EX} InsAtom;CredMetaData"
+          , TXT "{EX} InsPair;difCredMetaData;DataIssueForm;", SRC I, TXT ";CredMetaData;_NEW"
+          )
+ROLE ExecEngine MAINTAINS "difCredMetaData must be unique, and only available when needed" 
+RULE "difCredMetaData must be unique, and only available when needed": difCredMetaData;difCredMetaData~ |- I
+VIOLATION (TXT "{EX} DelPair;difCredMetaData;DataIssueForm;", SRC I, TXT ";CredMetaData;", TGT I) -- Deleting it is ok; it is automatically regenerated
+
+VIEW DataIssueForm : DataIssueForm
+    { "credentialType"   : TXT "AddressCredential"   -- Type of credential that is to be issued
+    , "subjectId"        : I                                 -- Subject from which the attestation is to be created
+    , "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
+    , "metaIfcId"        : TXT "CredMetaData" -- Ampersand API INTERFACE for receiving metadata
+    , "credmdId"           : difCredMetaData -- Atom identifier of the metadata subject belonging to the subject
+    } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
+
+--[ISSUE API]
+--! Labels of the Issue-API below must match the labels and structure of the JSON data that we weant to issue
+API "DataIssue": I[DataIssueForm] CRud BOX
+    [ "addressLine1":  difAddressLine1 CRUd
+    , "addressLine2" : difAddressLine2 CRUd
+    , "postalCode" : difPostalCode CRUd
+    , "city" : difCity CRUd
+    , "country": difCountry CRUd
+    ]                                                
+
+-- Pass this interface ID to the DataIssueForm? An interface/api is needed to pass the success/canceled status to, or alternatively 
+-- successFlag and canceledFlag relations could be passed separately related to subjectId
+--[Interface for issuing Data]
+INTERFACE "Data Issue Forms": V[SESSION*DataIssueForm] CRud BOX <TABLE>
+    [ "DataIssueForm": I CRuD
+    , "addressLine1":  difAddressLine1 CRUd
+    , "addressLine2" : difAddressLine2 CRUd
+    , "postalCode" : difPostalCode CRUd
+    , "city" : difCity CRUd
+    , "country": difCountry CRUd
+    -- , "successFlag": difSuccess CRUd
+    -- , "canceledFlag": difCanceled CRUd
+    ]
+
+dataIssueFormMsg :: DataIssueForm * IfcText -- messages to inform the user
+POPULATION IfcText CONTAINS [ "Issue Data" ]
+-- VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
+INTERFACE "Data Issue": I[DataIssueForm] cRud BOX <RAW>
+    [ "Issuetext": V;"Issue Data"[IfcText] cRud <STRONG>
+    , "Issue": I cRud <DataIssueForm>
+    , "CredMetaData": difCredMetaData CRud BOX <TABLE>
+      [ "successFlag": credmdIsSuccess cRUd
+      , "canceledFlag": credmdIsCanceled cRUd
+      ]
+    ]
+
+
+
+
+
+--[VERIFY]
+
+CONCEPT DataVerifyForm "form that is used to verify Data"
+CLASSIFY DataVerifyForm ISA Form
+
+--[DataVerifyForm Structure]
+dvfAttIdfr :: DataVerifyForm * AttIdfr [UNI]
+dvfFirstNames :: DataVerifyForm * FirstNames [UNI]
+dvfFirstName :: DataVerifyForm * FirstName [UNI]
+dvfFamilyName :: DataVerifyForm * FamilyName [UNI]
+dvfPrefix :: DataVerifyForm * Prefix [UNI]
+-- dvfCanceled :: DataVerifyForm * DataVerifyForm [PROP]
+-- dvfSuccess :: DataVerifyForm * DataVerifyForm [PROP]
+
+dvfCredMetaData :: DataVerifyForm * CredMetaData             [INJ,UNI]  -- The (distributed) ID that the DataVerifyForm can be identified with
+ROLE ExecEngine MAINTAINS "Generate dvfCredMetaData if it does not exist" 
+RULE "Generate dvfCredMetaData if it does not exist": I |- dvfCredMetaData;dvfCredMetaData~ 
+VIOLATION ( TXT "{EX} InsAtom;CredMetaData"
+          , TXT "{EX} InsPair;dvfCredMetaData;DataVerifyForm;", SRC I, TXT ";CredMetaData;_NEW"
+          )
+ROLE ExecEngine MAINTAINS "dvfCredMetaData must be unique, and only available when needed" 
+RULE "dvfCredMetaData must be unique, and only available when needed": dvfCredMetaData;dvfCredMetaData~ |- I
+VIOLATION (TXT "{EX} DelPair;dvfCredMetaData;DataVerifyForm;", SRC I, TXT ";CredMetaData;", TGT I) -- Deleting it is ok; it is automatically regenerated
+
+--[Example: Verify NameCredential]
+VIEW DataVerifyForm : DataVerifyForm 
+  { "credentialType" : TXT "NameCredential" -- Type of credential that is to be verified
+  , "formId"         : I -- Atom identifier of the form to be filled in
+  , "ifcId"          : TXT "DataVerify"  -- Interface/API name that will take the attestation
+  , "metaIfcId"        : TXT "CredMetaData" -- Ampersand API INTERFACE for receiving metadata
+  , "credmdId"           : dvfCredMetaData -- Atom identifier of the metadata subject belonging to the subject
+  } HTML TEMPLATE "View-CredentialVerifyRequest.html" ENDVIEW
+
+--[Verify API]
+API "DataVerify": I[DataVerifyForm] CRud BOX
+   [ "firstnames" : dvfFirstNames CRUd
+   , "firstname" : dvfFirstName CRUd
+   , "familyname" : dvfFamilyName CRUd
+   , "prefix" : dvfPrefix CRUd
+   ]
+
+--[Interface for verifying Data]
+INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRuD BOX <TABLE>
+    [ "DataVerifyForm": I CRud
+    , "firstnames" : dvfFirstNames cRud
+    , "firstname" : dvfFirstName cRud
+    , "familyname" : dvfFamilyName cRud
+    , "prefix" : dvfPrefix cRud
+    , "CredMetaData": dvfCredMetaData CRud BOX <TABLE>
+      [ "successFlag": credmdIsSuccess cRUd
+      , "canceledFlag": credmdIsCanceled cRUd
+      ]
+    ]
+
+dataVerifyFormMsg :: DataVerifyForm * IfcText -- messages to inform the user
+POPULATION IfcText CONTAINS [ "Verify Data" ]
+-- VIEW STRONG: IfcText HTML TEMPLATE "View-STRONG.html" ENDVIEW   REPRESENT IfcText TYPE ALPHANUMERIC
+INTERFACE "Data Verify": I[DataVerifyForm] cRud BOX <RAW>
+    [ "Verifytext": V;"Verify Data"[IfcText] cRud <STRONG>
+    , "Verify": I cRud <DataVerifyForm>
+    , "naamgegevens" : I cRud BOX
+      [ "firstnames" : dvfFirstNames cRud
+      , "firstname" : dvfFirstName cRud
+      , "familyname" : dvfFamilyName cRud
+      , "prefix" : dvfPrefix cRud
+      ]
+    , "CredMetaData": dvfCredMetaData CRud BOX <TABLE>
+      [ "requestId": credmdRequestId CRUd
+      , "type": credmdType CRUd
+      , "status": credmdStatus CRUd
+      , "connector": credmdConnector CRUd
+      , "iat": credmdIat CRUd
+      , "aud": credmdAud CRUd
+      , "iss": credmdIss CRUd
+      , "sub": credmdSub CRUd
+      , "successFlag": credmdIsSuccess cRUd
+      , "canceledFlag": credmdIsCanceled cRUd
+      ]
+    ]
 
 ENDCONTEXT

@@ -1,0 +1,27 @@
+<!-- Use this BOX template for I[Form] or specializations -->
+<style>
+/* Class applied to drop zones on over */
+.nv-file-over {
+    border: dotted 3px green;
+}
+</style>
+$if(verbose)$<!-- Box-SSIFORM.html "$label$" : $expAdl$ :: $source$ * $target$ $if(exprIsUni)$[UNI]$endif$$if(exprIsTot)$[TOT]$endif$  ($if(crudC)$C$else$c$endif$$if(crudR)$R$else$r$endif$$if(crudU)$U$else$u$endif$$if(crudD)$D$else$d$endif$, $if(!isRoot)$non-$endif$root box) -->
+$endif$$if(crudR)$<div $if(exprIsUni)$ng-repeat="resource in (resource['$name$'] === null ? [] : [resource['$name$']])"$else$ng-repeat="resource in resource['$name$']"$endif$>
+    <!-- View for relying party forms where attestation can be uploaded to provide/fill information -->
+    <div class="container-fluid" ng-controller="SSIFormBoxController" ng-init="initUploader(resource)">
+        <div class="row">
+            <div class="col-md-2">
+                <!-- QRcode + dropzone -->
+                <div nv-file-drop nv-file-over uploader="uploader">
+                    <img ng-src="{{getQRCodeImageSrc(128, 128, resource)}}" alt="Link for uploading attestion" uib-tooltip="{{resource._view_.uploadHint}} with the SSIF app"
+                        tooltip-placement="top" tooltip-trigger="mouseenter" />
+                </div>
+            </div>
+            
+            <div class="col-md-10">$subObjects:{subObj|$if(verbose)$
+                <!-- $subObj.subObjLabel$ -->$endif$
+                $subObj.subObjContents$}$
+            </div>
+        </div>
+    </div>
+</div>$else$<span><i>not readable</i></span>$endif$
