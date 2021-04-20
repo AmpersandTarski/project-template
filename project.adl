@@ -106,14 +106,13 @@ VIOLATION (TXT "{EX} DelPair;dataIssueForm_Idfr;DataIssueForm;", SRC I, TXT ";Id
 
 VIEW DataIssueForm : DataIssueForm
     { "ifcId"            : TXT "DataIssue"   -- Ampersand API INTERFACE that serves the credential data
-    , "token"            : dataIssueForm_Idfr                      -- Token that provides access to the interface
     , "subjectId"        : I                                 -- Subject from which the attestation is to be created
     , "credentialType"   : TXT "AddressCredential"   -- Interface name that will provide the attestation
     } HTML TEMPLATE "View-CredentialIssueRequest.html" ENDVIEW
 
 --[ISSUE API]
 --! Labels of the Issue-API below must match the labels and structure of the JSON data that we weant to issue
-API "DataIssue": dataIssueForm_Idfr~;I[DataIssueForm] CRud BOX
+API "DataIssue": I[DataIssueForm] CRud BOX
     [ "addressLine1":  dataIssueForm_addressLine1 CRUd
     , "addressLine2" : dataIssueForm_addressLine2 CRUd
     , "postalCode" : dataIssueForm_postalCode CRUd

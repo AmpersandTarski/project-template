@@ -15,7 +15,7 @@ global $api;
 $api->group('/ssif', function () {
 
     // API method to redirect the user with an 'credential-issue-request' to the SSI service
-    $this->get('/credential-issue-request/{ifcId}/{token}', function (Request $request, Response $response, $args = []) {
+    $this->get('/credential-issue-request/{ifcId}', function (Request $request, Response $response, $args = []) {
         /** @var \Ampersand\AmpersandApp $ampersandApp */
         $ampersandApp = $this['ampersand_app'];
         
@@ -31,7 +31,7 @@ $api->group('/ssif', function () {
         // $callbackUrl = rawurldecode($request->getQueryParam('callbackUrl', $request->getUri()->getHost()));
 
         // Prepare
-        $resource = ResourceList::makeFromInterface($credentialToken, $ifcId)->one($subjectId);
+        $resource = ResourceList::makeFromInterface($subjectId, $ifcId)->one($subjectId);
         $jti = bin2hex(random_bytes(12));
         
         // JWT interface with SSI service

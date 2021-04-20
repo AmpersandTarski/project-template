@@ -5,7 +5,7 @@ angular.module('AmpersandApp')
         let data = obj._view_;
         let encodedCredentialType = encodeURIComponent(data.credentialType);
         let finalRedirect = encodeURIComponent($location.absUrl());
-        return `api/v1/ssif/credential-issue-request/${data.ifcId}/${data.token}?subjectId=${data.subjectId}&credentialType=${encodedCredentialType}&finalRedirect=${finalRedirect}`;
+        return `api/v1/ssif/credential-issue-request/${data.ifcId}?subjectId=${data.subjectId}&credentialType=${encodedCredentialType}&finalRedirect=${finalRedirect}`;
     };
 
     $scope.getCredentialDataURL = function (obj) {
