@@ -183,12 +183,19 @@ $api->group('/ssif', function () {
         // }
         
         // $form->put($data->payload);
+        // NOTE: For lcobucci 4.0^ getClaim is deprecated. Use "$token->claims()->get('<name>')" instead
         $form->put($token->getClaim('data'));
         // TODO: also put metadata of attestation
 
         // Set success flag
         $obj = (object) array('successFlag' => True);
         $metaForm->put($obj);
+
+        // There may be a cleaner solution to doing this
+        $metaObj = json_decode(json_encode($token->getClaims()));
+        // Remove data from metadata object
+        unset($metaObj->data);
+        $metaForm->put($metaObj);
         
         $transaction->runExecEngine()->close();
 
@@ -198,6 +205,7 @@ $api->group('/ssif', function () {
 
         // $respContent = [ 'content'               => $data
         $respContent = [ 'content'               => array('payload'=>$token->getClaim('data'))
+                       , 'metadata'              => $metaObj
                        , 'notifications'         => $ampersandApp->userLog()->getAll()
                        , 'invariantRulesHold'    => $transaction->invariantRulesHold()
                        , 'isCommitted'           => $transaction->isCommitted()

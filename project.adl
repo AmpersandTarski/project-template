@@ -119,8 +119,6 @@ difAddressLine2 :: DataIssueForm * AddressLine2      [UNI]
 difPostalCode :: DataIssueForm * PostelCode          [UNI]
 difCity :: DataIssueForm * City                      [UNI]
 difCountry :: DataIssueForm * Country                [UNI]
--- difCanceled :: DataIssueForm * DataIssueForm        [PROP]
--- difSuccess :: DataIssueForm * DataIssueForm          [PROP]
 
 
 difCredMetaData :: DataIssueForm * CredMetaData             [INJ,UNI]  -- The (distributed) ID that the DataIssueForm can be identified with
@@ -215,23 +213,11 @@ VIEW DataVerifyForm : DataVerifyForm
   } HTML TEMPLATE "View-CredentialVerifyRequest.html" ENDVIEW
 
 --[Verify API]
---! Labels van onderstaande Input-API moeten matchen met de labels & structuur uit de API "PersoonslijstAttestatie"! in file "BRP_Attestaties.adl"
--- API "DataVerify": I[DataVerifyForm] CRud BOX
---    [ "id": dvfAttIdfr CRUd -- Attestatie identifiers zoals die door de uitgever is gegenereerd en bij het inlezen is geverifieerd
---    , "naamgegevens" : I cRud BOX
---       [ "firstnames" : dvfFirstNames CRUd
---       , "firstname" : dvfFirstName CRUd
---       , "familyname" : dvfFamilyName CRUd
---       , "prefix" : dvfPrefix CRUd
---       ]
---    ]
 API "DataVerify": I[DataVerifyForm] CRud BOX
    [ "firstnames" : dvfFirstNames CRUd
    , "firstname" : dvfFirstName CRUd
    , "familyname" : dvfFamilyName CRUd
    , "prefix" : dvfPrefix CRUd
---    , "successFlag": dvfSuccess CRUd
---    , "canceledFlag": dvfCanceled CRUd
    ]
 
 --[Interface for verifying Data]
@@ -245,8 +231,6 @@ INTERFACE "Data Verify Forms": V[SESSION*DataVerifyForm] CRuD BOX <TABLE>
       [ "successFlag": credmdIsSuccess cRUd
       , "canceledFlag": credmdIsCanceled cRUd
       ]
-    -- , "successFlag": dvfSuccess cRUd
-    -- , "canceledFlag": dvfCanceled cRUd
     ]
 
 dataVerifyFormMsg :: DataVerifyForm * IfcText -- messages to inform the user
