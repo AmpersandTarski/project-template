@@ -11,3 +11,5 @@ Here is what to do:
 6. Call "docker compose up -d"
 7. Go to your browser and navigate to `localhost` or whatever server host name you are using.
 8. Press the red install button on your application.
+
+Voor Nederlandstalige kijkers: https://youtu.be/qPnaYkPclYE geeft wat tekst en uitleg bij het installeren van een stand-alone applicatie.
