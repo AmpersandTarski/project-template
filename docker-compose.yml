@@ -34,7 +34,7 @@ services:
       - proxy
 
 # demo application, whose name is in ${AMPERSAND_SCRIPT}
-  ${AMPERSAND_SCRIPT}:
+  myscript:
     image: ampersandtarski/${AMPERSAND_SCRIPT}:latest
     container_name: ${AMPERSAND_SCRIPT}
     build:
