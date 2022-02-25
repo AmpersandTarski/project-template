@@ -9,6 +9,9 @@ FROM ampersandtarski/prototype-framework:v1.14
 # The script content
 COPY model /usr/local/project/
 
+# If you have custom templates, they need to be copied to where the Ampersand compiler expects them (/var/www)
+# RUN cp -r -v /usr/local/project/shared/templates /var/www/
+
 WORKDIR /usr/local/project
 
 # Generate prototype application from folder (you may want to include the option --ignore-invariant-violations)
