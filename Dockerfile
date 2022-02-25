@@ -11,7 +11,7 @@ COPY model /usr/local/project/
 
 WORKDIR /usr/local/project
 
-# Generate prototype application from folder
+# Generate prototype application from folder (you may want to include the option --ignore-invariant-violations)
 RUN ampersand proto script.adl \
   --proto-dir /var/www \
   --verbose
