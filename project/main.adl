@@ -1,0 +1,3 @@
+CONTEXT HelloWorld IN ENGLISH
+INCLUDE "example.adl"
+ENDCONTEXT

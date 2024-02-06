@@ -1,0 +1,13 @@
+resources:
+  - mariadb.yaml
+secretGenerator:
+  - name: ampersand-db
+    envs: 
+    - .env.secrets
+generatorOptions:
+  labels:
+    app.kubernetes.io/name: mariadb
+    helm.sh/chart: mariadb-11.4.7
+    app.kubernetes.io/instance: ampersand-db
+    app.kubernetes.io/managed-by: Helm
+  disableNameSuffixHash: true
