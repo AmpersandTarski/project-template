@@ -27,4 +27,4 @@ For Dutch speakers: the following video https://youtu.be/qPnaYkPclYE provides mo
 
 ## Codespace
 The following link can also be used to create a codespace using this template:
-https://github.com/codespaces/new/AmpersandTarski/AmpersandCodespaceTemplate?quickstart=1
+https://github.com/codespaces/new/AmpersandTarski/project-template?quickstart=1
