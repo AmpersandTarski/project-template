@@ -24,3 +24,7 @@ Run `docker-compose up -d --build` to build and run your application. Navigate t
 7. Follow the instructions on screen.
 
 For Dutch speakers: the following video https://youtu.be/qPnaYkPclYE provides more info on running and installing a Ampersand prototype application.
+
+## Codespace
+The following link can also be used to create a codespace using this template:
+https://github.com/codespaces/new/AmpersandTarski/AmpersandCodespaceTemplate?quickstart=1

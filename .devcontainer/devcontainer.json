@@ -1,0 +1,42 @@
+//https://github.com/microsoft/vscode-dev-containers/tree/main/containers/kubernetes-helm-minikube
+{
+	"name": "Ampersand project",
+	"dockerFile": "Dockerfile",
+	"runArgs": ["--privileged"],
+	"mounts": [
+		"source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
+		"source=minikube-config,target=/home/vscode/.minikube,type=volume"
+	],
+	"overrideCommand": false,
+	"postAttachCommand":"sh .devcontainer/startup.sh",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ampersandtarski.language-ampersand",
+				"ms-azuretools.vscode-docker",
+				"ms-kubernetes-tools.vscode-kubernetes-tools"
+			]
+		},
+		"codespaces": {
+			"openFiles": [
+				"Project/Example.adl"
+			]
+		}
+	},
+	"forwardPorts": [
+		8000
+	],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "kubectl version",
+
+	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
+	// "postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
+
+	// Minikube does not like running as root, so use a non-root user.
+	"remoteUser": "vscode"
+}
