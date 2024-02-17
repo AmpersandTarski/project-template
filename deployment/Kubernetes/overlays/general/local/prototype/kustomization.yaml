@@ -1,0 +1,7 @@
+resources:
+  - namespace.yaml
+  - ../../../../base/prototype
+namespace: prototype-local
+nameSuffix: -local
+patches:
+  - path: prototype-deployment.yaml

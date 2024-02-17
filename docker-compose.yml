@@ -10,8 +10,9 @@ services:
   ## Ampersand prototype container
   prototype:
     container_name: prototype
+    image: ampersand-prototype:latest
     build:
-      context: .
+      context: project
     restart: unless-stopped
     depends_on:
       - prototype-db

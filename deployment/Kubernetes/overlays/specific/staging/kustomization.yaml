@@ -1,0 +1,3 @@
+resources:
+  - ../../general/staging/certmanager
+  - prototype

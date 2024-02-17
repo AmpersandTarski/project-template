@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prototype
+spec:
+  template:
+    spec:
+      containers:
+        - name: ampersand-prototype
+          env:
+            - name: AMPERSAND_DBHOST
+              value: prototype-db-staging
+            - name: PROTOTYPE_HOST_NAME
+              value: staging.prototype.tarski.nl
+            - name: PROTOTYPE_KUBERNETES_NAMESPACE
+              value: prototype-staging

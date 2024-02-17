@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prototype-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-local"
+spec:
+  tls:
+    - hosts:
+        - local.prototype.tarski.nl
+  rules:
+    - host: local.prototype.tarski.nl

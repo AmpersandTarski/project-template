@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: prototype
+  name: prototype
+spec:
+  selector:
+    matchLabels:
+      app: prototype
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prototype
+    spec:
+      containers:
+        - name: ampersand-prototype
+          ports:
+            - containerPort: 80
+          env:
+            - name: AMPERSAND_DBNAME
+              value: prototype
+            - name: AMPERSAND_DEBUG_MODE
+              value: "true"
+            - name: AMPERSAND_LOG_CONFIG
+              value: logging.yaml
+            - name: AMPERSAND_SERVER_URL
+              value: https://localhost
+            - name: PROTOTYPE_DEPLOYMENT
+              value: Kubernetes
+          envFrom:
+            - configMapRef:
+                name: administration-configmap
+            - secretRef:
+                name: db-secrets

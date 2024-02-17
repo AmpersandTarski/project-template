@@ -1,0 +1,3 @@
+resources:
+  - ../../general/production/certmanager
+  - prototype

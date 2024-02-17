@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prototype
+spec:
+  template:
+    spec:
+      containers:
+        - name: ampersand-prototype
+          image: ampersand-prototype:Production-latest
+          env:
+            - name: PROTOTYPE_HOST_NAME
+              value: localhost # fill in the definitive hostname, e.g. localhost  # fill in the definitive hostname, e.g. prototype.cs.ou.nl

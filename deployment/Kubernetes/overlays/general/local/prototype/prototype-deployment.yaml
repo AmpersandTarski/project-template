@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prototype
+spec:
+  template:
+    spec:
+      containers:
+        - name: ampersand-prototype
+          image: ampersand-prototype:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AMPERSAND_DBHOST
+              value: prototype-db-local
+            - name: PROTOTYPE_HOST_NAME
+              value: localhost
+            - name: PROTOTYPE_KUBERNETES_NAMESPACE
+              value: prototype-local

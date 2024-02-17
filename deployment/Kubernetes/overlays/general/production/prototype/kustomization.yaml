@@ -1,0 +1,8 @@
+resources:
+  - namespace.yaml
+  - ../../../../base/prototype
+namespace: prototype-production
+nameSuffix: -production
+patches:
+- path: prototype-deployment.yaml
+- path: prototype-ingress.yaml

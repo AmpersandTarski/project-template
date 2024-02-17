@@ -1,0 +1,7 @@
+resources:
+  - database
+  - phpmyadmin.yaml
+  - administration-configmap.yaml
+  - prototype-service.yaml
+  - prototype-deployment.yaml
+  - prototype-ingress.yaml

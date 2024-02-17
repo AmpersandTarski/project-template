@@ -1,0 +1,10 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prototype-ingress
+spec:
+  tls:
+    - hosts:
+        - staging.localhost  # fill in the definitive hostname, e.g. prototype.cs.ou.nl
+  rules:
+    - host: staging.localhost  # fill in the definitive hostname, e.g. prototype.cs.ou.nl
