@@ -1,0 +1,33 @@
+CONTEXT SIAM IN ENGLISH
+
+    CONCEPT "Representative" "Someone who speaks or does something officially for a organization or a group of people"
+    CLASSIFY Representative ISA Person
+
+    RELATION repOrg[Representative*Organization] [UNI,TOT]
+    RELATION repAccount[Representative*Account] [UNI] MEANING "A representative can have an assigned account"
+    RELATION repRole[Representative*FunctionTitle] [UNI]
+        REPRESENT FunctionTitle TYPE ALPHANUMERIC
+    RELATION active[Representative*Representative] [PROP]
+    RELATION tsAdded[Representative*DateTime] [UNI,TOT]
+    RELATION tsRemoved[Representative*DateTime] [UNI]
+        REPRESENT DateTime TYPE DATETIME
+    RELATION removeRequest[Representative*Representative] [PROP]
+
+    RULE "Representative integrity 1" : active[Representative] |- I-(tsRemoved;tsRemoved~)
+
+    ROLE ExecEngine MAINTAINS "Process Representative removeRequest"
+    RULE "Process Representative removeRequest" : removeRequest |- -I[Representative]
+    VIOLATION ( TXT "{EX}InsPair;tsRemoved;Representative;", SRC I, TXT ";DateTime;{php}date(DATE_ISO8601)"
+                , TXT "{EX}DelPair;active;Representative;", SRC I, TXT ";Representative;", SRC I
+                , TXT "{EX}DelPair;removeRequest;Representative;", SRC I, TXT ";Representative;", SRC I
+                )
+
+    ROLE ExecEngine MAINTAINS "Autofill active for Representative"
+    RULE "Autofill active for Representative": I[Representative] |- active \/ tsRemoved;tsRemoved~
+    VIOLATION ( TXT "{EX}InsPair;active;Representative;", SRC I, TXT ";Representative;", SRC I )
+
+    ROLE ExecEngine MAINTAINS "Autofill tsAdded for Representative"
+    RULE "Autofill tsAdded for Representative": I[Representative] |- tsAdded;tsAdded~
+    VIOLATION ( TXT "{EX}InsPair;tsAdded;Representative;", SRC I, TXT ";DateTime;{php}date(DATE_ISO8601)" )
+
+ENDCONTEXT

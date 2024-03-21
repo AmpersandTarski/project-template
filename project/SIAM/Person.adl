@@ -1,0 +1,26 @@
+CONTEXT SIAM IN ENGLISH
+
+    CONCEPT Person "a human body of flesh and blood"
+
+    CLASSIFY FirstName ISA Name
+    REPRESENT FirstName TYPE ALPHANUMERIC
+
+    CLASSIFY LastName ISA Name
+    REPRESENT LastName TYPE ALPHANUMERIC
+
+    RELATION personFirstName[Person*FirstName] [UNI]
+    MEANING "The first name of a Person that is registered."
+
+    RELATION personLastName[Person*LastName] [UNI]
+    MEANING "The last name of a Person that is registered."
+  
+    RELATION personEmailaddress[Person*Emailaddress] [UNI]
+    REPRESENT Emailaddress TYPE ALPHANUMERIC
+    
+    RELATION personPhoneNumber[Person*PhoneNumber]
+    REPRESENT PhoneNumber TYPE ALPHANUMERIC
+  
+    RELATION personInitials[Person*Initials] [UNI] -- INJ
+    REPRESENT Initials TYPE ALPHANUMERIC
+
+ENDCONTEXT

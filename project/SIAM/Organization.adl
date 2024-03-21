@@ -1,0 +1,28 @@
+CONTEXT SIAM IN ENGLISH
+
+    CONCEPT Organization "an organized group of people with a particular purpose, such as a business or government department" "Oxford English Dictionary"
+    CLASSIFY Organization ISA Party -- Integration with Persona
+
+    IDENT "Organization external identifier" : Organization (orgExternalIdentifier)
+
+    CLASSIFY OrgAbbrName ISA Name
+    REPRESENT OrgAbbrName TYPE ALPHANUMERIC
+
+    CLASSIFY OrgFullName ISA Name
+    REPRESENT OrgFullName TYPE ALPHANUMERIC
+
+    REPRESENT Domain TYPE ALPHANUMERIC
+    
+    RELATION orgAbbrName[Organization*OrgAbbrName] [UNI,TOT] --INJ
+    MEANING "An organization has a short name by which it can be identified"
+
+    RELATION orgFullName[Organization*OrgFullName] [UNI,TOT] --INJ
+    MEANING "An organization has a long (full) name by which it can be identified"
+
+    RELATION orgDomain[Organization*Domain] MEANING "Domain names (example.com) of this organization"
+  
+    RELATION orgRole[Organization*Role] MEANING "Roles that are applicable to all accounts of the organization"
+
+    RELATION orgExternalIdentifier[Organization*Identifier] MEANING "A scoped identifier as given by an external identity provider"
+
+ENDCONTEXT

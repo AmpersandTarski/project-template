@@ -1,0 +1,46 @@
+CONTEXT SIAM IN ENGLISH
+
+    CONCEPT Account "een verzameling gegevens die (een deel van) de gebruikerscontext van één gebruiker binnen het systeem beschrijft"
+
+    REPRESENT UserID TYPE ALPHANUMERIC
+
+    CONCEPT UserID "een rij karakters (bijvoorbeeld het e-mailadres van de user), die een account identificeert binnen het systeem"
+    REPRESENT UserID TYPE ALPHANUMERIC
+
+    CONCEPT Password "een rij karakters, die geheim gehouden kan worden door een persoon, en door die persoon gebruikt moet worden om toegang te krijgen tot het systeem"
+    REPRESENT Password TYPE PASSWORD
+
+    RELATION accOrg[Account*Organization] [UNI]
+    MEANING "An Account may contain (web)service-specific attributes regarding a specific Organization"
+
+    RELATION accPerson[Account*Person] [UNI]
+    MEANING "An Account may contain profile information (i.e. person information)"
+    
+    RELATION accountProcessedByExecEngine[Account*Account] [PROP] -- This indicates that the account is processed by the exec engine. When this relation is not set (i.e. a new account is created within the transaction) additional information about the account can be added.
+    
+    ROLE ExecEngine MAINTAINS "Process new account"
+    RULE "Process new account" : I[Account]-accountProcessedByExecEngine |- -I
+    VIOLATION ( TXT "{EX}InsPair;accountProcessedByExecEngine;Account;", SRC I, TXT ";Account;", SRC I
+              --, TXT "{EX}PushoverNotifications::execEnginePushNotificationOnCommit;", SRC V[User*Role];"Helpdesk";userRole~;userPushoverKey, TXT ";New user;Email: ", SRC accUserid, TXT ";http://setu.t4smm.nl/#/View_32_user/", SRC I
+              )
+
+    ROLE ExecEngine MAINTAINS "All accounts must have the role User"
+    RULE "All accounts must have the role User" : I[Account] |- accAllowedRoles;"User";accAllowedRoles~
+    VIOLATION (TXT "{EX}InsPair;accAllowedRoles;Account;", SRC I, TXT ";Role;User")
+
+    ROLE ExecEngine MAINTAINS "Automatically create Person object for (new) accounts"
+    RULE "Automatically create Person object for (new) accounts": I[Account] |- accPerson;accPerson~
+    VIOLATION ( TXT "{EX}InsAtom;Person"
+              , TXT "{EX}InsPair;accPerson;Account;", SRC I, TXT ";Person;_NEW"
+              )
+
+    ROLE ExecEngine MAINTAINS "Add role Anonymous to sessions"
+    RULE "Add role Anonymous to sessions": I[SESSION]-(sessionAccount;sessionAccount~) |- sessionAllowedRoles;"Anonymous";sessionAllowedRoles~
+    VIOLATION (TXT "{EX}InsPair;sessionAllowedRoles;SESSION;", SRC I, TXT ";Role;Anonymous")
+    -- When a user logs in, this role is removed by rule 'Clear allowed session roles'
+
+    ROLE ExecEngine MAINTAINS "Activate Anonymous by default"
+    RULE "Activate Anonymous by default": sessionAllowedRoles;"Anonymous" |- sessionActiveRoles;"Anonymous"
+    VIOLATION (TXT "{EX}InsPair;sessionActiveRoles;SESSION;", SRC I, TXT ";Role;Anonymous")
+
+ENDCONTEXT

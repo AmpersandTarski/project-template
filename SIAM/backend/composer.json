@@ -1,0 +1,26 @@
+{
+    "name": "ampersandtarski/project-template",
+    "require": {
+        "ampersandtarski/prototype": "1.17.0",
+        "slim/slim": "^3.0",
+        "league/oauth2-client": "^2.6",
+        "league/oauth2-github": "^2.0",
+        "league/oauth2-linkedin": "^5.1",
+        "league/oauth2-google": "^4.0",
+        "lcobucci/jwt": "^4"
+    },
+    "autoload": {
+        "psr-4": {
+            "SIAM\\": "src/SIAM"
+        },
+        "files": [
+            "src/SIAM/Utils/functions.php"
+        ]
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.2",
+        "phan/phan": "^5.4.2",
+        "phpunit/phpunit": "^9.5"
+    },
+    "prefer-stable": true
+}

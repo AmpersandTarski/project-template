@@ -8,7 +8,7 @@ There are three starting points:
 2. `deployment/Kubernetes/overlays/specific/staging`: meant for testing prior to deployment to production.
 3. `deployment/Kubernetes/overlays/specific/production`: meant for deployment to production.
 
-The manifest files are layered to facilitate multiple deploymets, e.g. development, staging, and production.
+The manifest files are layered to facilitate multiple deployments, e.g. development, staging, and production.
 
 The `base` layer contains the prototype proper and the certification manager.
 Certificates are provided fully automated by `letsencrypt`, so your prototype will work with https out of the box.

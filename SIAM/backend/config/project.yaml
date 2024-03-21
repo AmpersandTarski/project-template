@@ -1,0 +1,14 @@
+settings: {}
+
+## List of other config files (are loaded after the extensions below)
+config: []
+
+## Named list of extensions
+extensions:
+  OAuthLogin:
+    bootstrap: src/api/oauth.php
+    config:
+      oauthlogin.enabled: true
+      # path 'redirect-after-login' triggers frontend to route back to page where status 401 was raised.
+      oauthlogin.redirectAfterLogin: "#/redirect-after-login" # can be relative to global.serverURL or absolute starting with http(s)://
+      oauthlogin.redirectAfterLoginFailure: "#/error?message=" # can be relative to global.serverURL or absolute starting with http(s)://

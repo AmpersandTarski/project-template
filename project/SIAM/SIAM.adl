@@ -1,0 +1,30 @@
+CONTEXT SIAM
+    {- This is a reusable context for Sessions, Identity and Access Management.
+       Strongly simplified version of SIAMv1 for Semantic Treehouse use
+    -}
+
+    INCLUDE "SIAM.ifc"
+
+    INCLUDE "Account.adl"
+    INCLUDE "Login.adl"
+    INCLUDE "LoginLogging.adl"
+    INCLUDE "OAuthLogin.adl"
+    INCLUDE "Organization.adl"
+    INCLUDE "Person.adl"
+    INCLUDE "Representative.adl"
+    INCLUDE "Roles.adl"
+
+    CONCEPT SESSION ""
+
+    -- Temporary add these relation defintions because they are needed before UserCtx and SystemContext are merged
+    RELATION sessionAllowedRoles[SESSION*Role]
+    RELATION sessionActiveRoles[SESSION*Role]
+
+    -- Default SIAM population (admin account)
+    POPULATION Account CONTAINS ["admin"]
+    POPULATION accUserid CONTAINS [("admin", "admin")]
+    POPULATION accDisplayName CONTAINS [("admin", "admin")]
+    POPULATION accAllowedRoles CONTAINS [("admin", "Administrator"), ("admin", "Account_32_manager"), ("admin", "Beheerder")]
+    POPULATION label[Role*PF_Label] CONTAINS [("Administrator", "Administrator"), ("Account_32_manager", "Account manager"), ("Beheerder", "Beheerder")]
+ 
+ENDCONTEXT

@@ -1,0 +1,20 @@
+CONTEXT SIAM
+    {- This service maintains the following rules:
+    * `accMostRecentLogin` contains the time at which the latest login has been performed.
+    * `accLoginTimestamps` contains all times at which a login took place (in a new session).
+    -}
+
+    RELATION accMostRecentLogin[Account*DateTime] [UNI]
+    RELATION accLoginTimestamps[Account*DateTime]
+    RELATION sessionLoginTimestamp[SESSION*DateTime] [UNI]
+    
+    REPRESENT DateTime TYPE DATETIME
+
+    ROLE ExecEngine MAINTAINS "Login Timestamping"
+    RULE "Login Timestamping": sessionAccount |- sessionLoginTimestamp;V
+    VIOLATION ( TXT "{EX}InsPair;sessionLoginTimestamp;SESSION;", SRC I, TXT ";DateTime;{php}date(DATE_ISO8601)"
+              , TXT "{EX}InsPair;accMostRecentLogin;Account;", TGT I, TXT ";DateTime;{php}date(DATE_ISO8601)"
+              , TXT "{EX}InsPair;accLoginTimestamps;Account;", TGT I, TXT ";DateTime;{php}date(DATE_ISO8601)"
+              )
+
+ENDCONTEXT

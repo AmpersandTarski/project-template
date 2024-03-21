@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<ruleset>
+    <description>PHP code formatting ruleset for Semantic Treehouse repo</description>
+
+    <!--
+        If no files or directories are specified on the command line
+        your custom standard can specify what files should be checked
+        instead.
+
+        Note that file and directory paths specified in a ruleset are
+        relative to the ruleset's location, and that specifying any file or
+        directory path on the command line will ignore all file tags.
+    -->
+    <file>./src</file>
+    <exclude-pattern>*/lib/*</exclude-pattern>
+
+    <rule ref="PSR12">
+        <!-- 
+            Manually set severity of all rules to 5 to trigger report out when running phpcs cli
+            Otherwise, somehow errors/warnings with severity lower than 5 are not shown, even
+            not when using the 'severity=1' cli option
+        -->
+        <severity>5</severity>
+        <exclude name="Generic.Files.LineLength" />
+        <exclude name="Generic.Files.LineEndings" />
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.NoLineAfterClose" />
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpenBrace" />
+        <properties>
+            <!-- 
+                The property 'ignoreBlankLines' belongs to rule 'Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines'
+                which is included in the PSR12 ruleset as defined by phpcs. Correct indentation of blank lines
+                is reported as 'Whitespace found...' We don't want this, therefore we set property 'ignoreBlankLines'
+            -->
+            <property name="ignoreBlankLines" value="true"/>
+        </properties>
+    </rule>
+
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <!-- We prefer the use of `$arr = []` instead of `$arr = array()` -->
+                <element key="array" value="null"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>

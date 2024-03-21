@@ -31,6 +31,7 @@ services:
   ## MariaDB database required by prototype
   prototype-db:
     container_name: prototype-db
+    platform: linux/amd64
     image: mariadb:10.4
     restart: unless-stopped
     command: ["--lower-case-table-names=1", "--sql-mode=ANSI,TRADITIONAL"]

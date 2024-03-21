@@ -1,0 +1,9 @@
+CONTEXT SIAM
+
+-- This file specifies models and interfaces required for the OAuthLogin extension
+
+API "AccountForUserid" FOR SYSTEM : accUserid~ BOX [ "ignore" : I]
+
+API "DomainOrgs" FOR SYSTEM : orgDomain~ BOX [ "ignore" : I]
+
+ENDCONTEXT

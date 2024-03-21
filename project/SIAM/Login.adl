@@ -1,0 +1,91 @@
+CONTEXT SIAM
+
+   {- Het 'inloggen' (van een user in een session) bestaat uit het identificeren en
+      authenticeren van die user en het vaststellen welk Account bij die user hoort,
+      zodat dit Account met de session kan worden geassocieerd. Van daaruit kan de
+      session context verder worden opgebouwd. Het 'uitloggen' (van een user uit een
+      session) bestaat uit het verwijderen van de session, om te voorkomen dat een
+      andere user later in die session zal gaan inloggen; dat is wenselijk omdat hiermee
+      altijd ondubbelzinnig duidelijk is wie voor (de handelingen in) welke session
+      verantwoordelijk is. Dit hoofdstuk beschrijft de betreffende functionaliteit,
+      die (op het inloggen na) volledig geautomatiseerd verloopt. De afspraken zijn
+      zodanig opgesteld dat het vrij eenvoudig is om een faciliteit te bouwen die het
+      tijdelijk opschorten van een session mogelijk maakt, zoals dat wel gebeurt bij
+      screensavers. Dat is echter niet verder gespecificeerd.
+   -}
+
+   -- IDENT Accounts: Account(accUserid,accPassword) -- Only needed when accUserid is not [INJ]
+   RELATION accUserid[Account*UserID] [INJ,UNI,TOT]
+   MEANING "An Account registers a pseudonym for whatever the Account applies to"
+   RELATION accPassword[Account*Password] [UNI] -- Not TOT, because we want to facilitate external logins.
+   MEANING "An Account registers a password for whatever the Account applies to"
+
+   RELATION accDisplayName[Account*UserID] [UNI,TOT]
+
+   -- Uniqueness constrain removed in #658 because of possible duplicate display names based on identity provider data
+   -- RULE "accDisplayName uniqueness constraint" : accDisplayName;accDisplayName~ |- I[Account]
+   -- MESSAGE "You must specify a unique display name"
+   -- VIOLATION ( TXT "Sorry, the name ", SRC accDisplayName, TXT " is already taken")
+
+   ROLE ExecEngine MAINTAINS "Autofill account display name"
+   RULE "Autofill account display name": I[Account] |- accDisplayName;accDisplayName~
+   VIOLATION ( TXT "_;InsPair_;accDisplayName_;Account_;", SRC I, TXT "_;UserID_;", TGT accUserid)
+
+   RELATION sessionAccount[SESSION*Account] [UNI]
+   MEANING "A SESSION may be linked to an Account."
+
+   RELATION sessionUserid[SESSION*UserID] [UNI]
+   MEANING "In a SESSION, the userid (i.e. the name/text that identifies the Account that is used to login) may be known."
+   
+   ROLE ExecEngine MAINTAINS "Determine the 'userid' in a session"
+   RULE "Determine the 'userid' in a session": sessionAccount;accUserid |- sessionUserid
+   VIOLATION (TXT "{EX} InsPair;sessionUserid;SESSION;", SRC I, TXT ";UserID;", TGT I)
+   
+   ROLE ExecEngine MAINTAINS "Undetermine the 'userid' in a session"
+   RULE "Undetermine the 'userid' in a session": sessionUserid |- sessionAccount;accUserid
+   VIOLATION (TXT "{EX} DelPair;sessionUserid;SESSION;", SRC I, TXT ";UserID;", TGT I)
+
+   --[Login, Logout]------------------------------------------
+   RELATION loginUserid[SESSION*UserID] [UNI]
+   RELATION loginPassword[SESSION*Password] [UNI]
+   RELATION logoutRequest[SESSION*SESSION] [PROP]
+
+   RULE "Authenticate user": loginUserid~;loginPassword |- accUserid~;accPassword
+   MESSAGE "You may only login with valid credentials (username/password)."
+   VIOLATION (TXT "The UserID or Password do not match. Please try again.")
+   --VIOLATION (TXT "Voor de combinatie UID/PW = ('", SRC I, TXT "','", TGT I, TXT "') bestaat geen account.")
+
+   ROLE ExecEngine MAINTAINS "Login"
+   RULE "Login": (loginUserid;accUserid~ /\ loginPassword;accPassword~) |- sessionAccount
+   MEANING "The user in a (new) session must be authenticated."
+   VIOLATION (TXT "{EX} InsPair;sessionAccount;SESSION;", SRC I, TXT ";Account;", TGT I
+            ,TXT "{EX} DelPair;loginUserid;SESSION;", SRC I, TXT ";UserID;", SRC loginUserid
+            ,TXT "{EX} DelPair;loginPassword;SESSION;", SRC I, TXT ";Password;", SRC loginPassword -- Passwords moet je niet willen onthouden.
+            )
+
+   ROLE ExecEngine MAINTAINS "Logout"
+   RULE "Logout": "_SESSION";logoutRequest |- -V 
+   MEANING "A request to logout in a session must be processed in that session."
+   VIOLATION (TXT "{EX} DelAtom;SESSION;", SRC I)
+
+   --[Session deactivation/reactivation]----------------------
+   PURPOSE RELATION firstSessionAccount
+   {+Om het (later) mogelijk te maken een session op te schorten moet van de session het eerste sessionaccount onthouden worden, omdat aan het eind van deze opschorting de oorspronkelijke user weer moet kunnen inloggen, en niet iemand anders.+}
+   RELATION firstSessionAccount[SESSION*Account] [UNI]
+   MEANING "Het Account dat in een session als eerste is geauthenticeerd, moet worden onthouden."
+
+   ROLE ExecEngine MAINTAINS "Het eerst geauthenticeerde session account registreren"
+   RULE "Het eerst geauthenticeerde session account registreren": 
+      ("_SESSION"[SESSION] /\ -(firstSessionAccount;firstSessionAccount~));sessionAccount |- firstSessionAccount
+   MEANING "Voor de eerste keer inloggen mag met elk (geauthenticeerd) account."
+   VIOLATION (TXT "{EX} InsPair;firstSessionAccount;SESSION;", SRC I, TXT ";Account;", TGT I)
+
+   PURPOSE RULE "Integriteit van session accounts"
+   {+Er mag hooguit één user inloggen in een session, zodat kan worden gegarandeerd dat het ondubbelzinnig duidelijk is welke persoon verantwoordelijk is voor wat er in een session gebeurt. Dat moet dus ook worden gecontroleerd.+}
+   RULE "Integriteit van session accounts": 
+      ("_SESSION"[SESSION] /\ firstSessionAccount;firstSessionAccount~);sessionAccount |- firstSessionAccount 
+   MEANING "In een session mag hoogstens één account worden gebruikt."
+   MESSAGE "U moet met uw eerder ingevoerde credentials inloggen."
+   VIOLATION (TXT "In deze sessie was '", SRC firstSessionAccount;accUserid, TXT "' ingelogd.")
+
+ENDCONTEXT
