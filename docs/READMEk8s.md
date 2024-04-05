@@ -3,7 +3,7 @@
 To run APM on localhost, run:
 ```
 kubectl apply -k ./deployment/Kubernetes/overlays/specific/local
-kubectl port-forward service/apm-dev -n apm-dev 8000:80
+kubectl port-forward service/prototype-local  8000:80
 ```
 ---
 
