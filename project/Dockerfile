@@ -7,7 +7,7 @@ FROM ampersandtarski/prototype-framework:v1.14
 # COPY --from=ampersandtarski/ampersand:development /bin/ampersand /usr/local/bin
 
 # The script content
-COPY project /usr/local/project/
+COPY . /usr/local/project/
 
 # If you have custom templates, they need to be copied to where the Ampersand compiler expects them (/var/www)
 # RUN cp -r -v /usr/local/project/shared/templates /var/www/
@@ -20,9 +20,9 @@ RUN ampersand proto main.adl \
   --verbose
 
 RUN chown -R www-data:www-data /var/www/log /var/www/data /var/www/generics \
-  && cd /var/www
-# uncomment lines below if customizations are added to default prototype framework
-# && composer install --prefer-dist --no-dev --optimize-autoloader --profile \
-# && npm install \
-# && gulp build-ampersand \
-# && gulp build-project
+  && cd /var/www \
+  # uncomment lines below if customizations are added to default prototype framework
+  && composer install --prefer-dist --no-dev --optimize-autoloader --profile \
+  && npm  install \
+  && gulp build-ampersand \
+  && gulp build-project

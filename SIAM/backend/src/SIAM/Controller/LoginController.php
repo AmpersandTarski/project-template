@@ -1,5 +1,5 @@
 <?php
-
+// This file contains the PHP-code to fill the Ampersand relations from SIAM.adl
 namespace SIAM\Controller;
 
 use Throwable;
