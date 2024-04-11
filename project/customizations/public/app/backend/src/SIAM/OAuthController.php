@@ -25,7 +25,7 @@ class OAuthController extends AbstractController
         // Prepare list with identity providers for the UI
         $idps = array_map(function (IDPInterface $idp) {
             return [
-                'name' => $idp->getName(), 'loginUrl' => "api/v1/oauthlogin/login/{$idp->getId()}", 'logo' => $idp->getLogoUrl()
+                'name' => $idp->getName(), 'loginUrl' => "api/v1/OAuthLogin/login/{$idp->getId()}", 'logo' => $idp->getLogoUrl()
             ];
         }, IdentityProviderFactory::getProviders($this->app));
 

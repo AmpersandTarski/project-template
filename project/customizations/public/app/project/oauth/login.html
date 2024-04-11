@@ -1,12 +1,13 @@
 <div class="container-fluid interface" ng-controller="LoginExtLoginController">
     <div class="row container">
-        <h4>Please login using...</h4>
+        <h4>Please pick any identity provider to validate your e-mail address.</h4>
     </div>
     <div class="row">
         <div class="col-xs-2" ng-repeat="idp in idps">
             <div>
                 <a ng-href="{{idp.loginUrl}}">
-                    <img ng-src="{{idp.logo}}" class="img-responsive" style="width: 100%; max-width : 75%;" alt="{{idp.name}}">
+                    <img ng-src="{{idp.logo}}" class="img-responsive" style="width: 100%; max-width : 75%;"
+                        alt="{{idp.name}}">
                 </a>
             </div>
             <div>

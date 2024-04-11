@@ -32,7 +32,7 @@ settings:
     # mysql.dbName: set in customizations.yaml
     # mysql.dbUser: set in customizations.yaml
     # mysql.dbPass: set in customizations.yaml
-    
+
     ### RBAC (Role Based Access Control)
     # null implies that everyone has access, use empty list [] to disable for all, or specify a list with allowed roles
     rbac.importerRoles: [Administrator]
@@ -61,12 +61,12 @@ settings:
     # execengine.execEngineRoleNames: [ExecEngine]
     # execengine.autoRerun: true
     # execengine.maxRunCount: 10
-    
+
 ## List of other config files
 config:
     # - config/some-other-file.yaml
 
 extensions:
-    RAP4:
-        bootstrap: extensions/RAP4/src/Command.php
-        # config: config/extension.yaml
+    # RAP4:
+    #     bootstrap: extensions/RAP4/src/Command.php
+    #     config: config/extension.yaml

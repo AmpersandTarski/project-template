@@ -1,0 +1,74 @@
+# Ampersand Prototype Framework default settings
+# This file contains a list of all settings that are used by the prototype framework
+# Specific settings can be overwritten by placing a 'project.yaml' file in the /config folder
+
+settings:
+  ### Application global settings
+  global.version: v0.1.0 # version of your application
+  global.productionEnv: false # set environment as production deployment (or not = default)
+  global.debugMode: true # set debugMode (or not = default). Impacts the way errors are returned by API
+  global.scriptTimeout: 30 # number of seconds for php to run. Use 0 to have no time limit (not advised)
+  global.defaultTimezone: Europe/Amsterdam # see http://php.net/manual/en/timezones.php for a list of supported timezones
+
+  global.serverURL: http://localhost # set the base url for the application (e.g. http://www.yourdomain.nl)
+  global.apiPath: api/v1 # relative path to current api
+  global.absolutePath: null # is set during application bootstrap
+  global.dataPath: /var/www/data # directory for persistent file data (e.g. user uploads). Must be absolute path
+
+  global.allowedMimeTypes:
+    - application/vnd.ms-excel
+    - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    - application/excel
+    - application/pdf
+    - text/xml
+
+  ### Settings provided by compiler
+  # global.contextName: My application
+  # compiler.modelHash: null
+  # compiler.version: null
+  # compiler.env: null
+
+  ### Mysql settings
+  mysql.dbHost: localhost
+  mysql.dbName: null # when not configured, the 'global.contextName' config is used
+  mysql.dbUser: ampersand
+  mysql.dbPass: ampersand
+
+  ### RBAC (Role Based Access Control)
+  # null implies that everyone has access, use empty list [] to disable for all, or specify a list with allowed roles
+  rbac.importerRoles: null
+  rbac.adminRoles: null
+  # Identifier of interface that provides the accessible interfaces
+  # Signature of the root expression must be [SESSION*PF_Interface]
+  # If null, the RELATION pf_ifcRoles[PF_Interface*Role] is queried for every role in RELATION sessionActiveRoles[SESSION*Role]
+  rbac.accessibleInterfacesIfcId: null
+
+  ### Session
+  session.expirationTime: 3600 # expiration time in seconds
+  session.loginEnabled: false # enable/disable login functionality (requires SIAM module)
+  session.loginPage: null # other example: '/ext/Login'
+
+  ### Config for core classes: Concepts, Atoms, Relations and Links
+  core.concept.prefixAtomIdWithConceptName: true
+
+  ### Transaction settings
+  transactions.ignoreInvariantViolations: false # for debugging can be set to true (transactions will be committed regardless off invariant violations)
+  transactions.skipUniInjConjuncts: false # TODO: remove after fix for issue #535
+  transactions.interfaceAutoSaveChanges: true # specifies whether changes in interface are directly communicated (saved) to server
+
+  ### Notification settings
+  notifications.defaultShowSignals: true
+  notifications.defaultShowInfos: true
+  notifications.defaultShowWarnings: true
+  notifications.defaultShowSuccesses: true
+  notifications.defaultAutoHideSuccesses: true
+  notifications.defaultShowErrors: true
+  notifications.defaultShowInvariants: true
+
+  ### Frontend settings
+  frontend.homePage: "/prototype/welcome" # Angular route. Don't put a '#' in front of the path
+
+  ### ExecEngine settings
+  execengine.execEngineRoleNames: [ExecEngine]
+  execengine.autoRerun: true
+  execengine.maxRunCount: 10

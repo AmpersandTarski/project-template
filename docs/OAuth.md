@@ -17,6 +17,8 @@ So, if you want to include other attributes your IDP provides, change that PHP-c
 
 For privacy reasons and robustness, minimize the amount of personal data you need.
 
+To make authorization work, make sure that all interfaces have roles that do not include the role Anonymous. Reserve the Anonymous role for those interfaces needed for login. Make sure that all other interfaces do not include the Anonymous role, to make sure that every transaction is done by a named account.
+
 ## Back end
 You need to configure the back end extension, which resides in the directory (../SIAM/backend)[../SIAM/backend]. It contains the logic to translate the information from IDPs to the Ampersand relations.
 NOTE: if you copy these files into your own directories, check that the PHP namespaces follow the path in your folder structure.

@@ -24,7 +24,7 @@ CONTEXT SIAM
     POPULATION Account CONTAINS ["admin"]
     POPULATION accUserid CONTAINS [("admin", "admin")]
     POPULATION accDisplayName CONTAINS [("admin", "admin")]
-    POPULATION accAllowedRoles CONTAINS [("admin", "Administrator"), ("admin", "Account_32_manager"), ("admin", "Beheerder")]
-    POPULATION label[Role*PF_Label] CONTAINS [("Administrator", "Administrator"), ("Account_32_manager", "Account manager"), ("Beheerder", "Beheerder")]
+    POPULATION accAllowedRoles CONTAINS [("admin", "Administrator"), ("admin", "AccountMgr"), ("admin", "Maintainer")]
+    POPULATION label[Role*PF_Label] CONTAINS [("Administrator", "Administrator"), ("AccountMgr", "AccountMgr"), ("Maintainer", "Maintainer")]
  
 ENDCONTEXT

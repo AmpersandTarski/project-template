@@ -26,7 +26,7 @@ API "SessionVars" FOR SYSTEM : I[SESSION] BOX
 API "AccessibleInterfaces" FOR SYSTEM: I[SESSION];sessionActiveRoles;pf_ifcRoles~ BOX []
   
 --[User INTERFACES]--------------------------------------------------------------------------------
-INTERFACE "My account" FOR "User" : "_SESSION"[SESSION];sessionAccount BOX <TABS>
+INTERFACE "My account" FOR User : "_SESSION"[SESSION];sessionAccount BOX <TABS>
   [ "Account"        : I[Account] BOX <FORM>
     [ "Username"     : accUserid
     , "Display name" : accDisplayName             cRUd
@@ -68,7 +68,7 @@ INTERFACE "My account" FOR "User" : "_SESSION"[SESSION];sessionAccount BOX <TABS
   ]
 
 --[Beheerder INTERFACES]---------------------------------------------------------------------------
-INTERFACE "View account" FOR "Beheerder", "Helpdesk" : I[Account] BOX <FORM showNavMenu>
+INTERFACE "View account" FOR Maintainer, Helpdesk : I[Account] BOX <FORM showNavMenu>
   [ "Username"       : accUserid
   , "Display name"   : accDisplayName
   , "Representative" : repAccount~ BOX <TABLE>
@@ -104,7 +104,7 @@ INTERFACE "View account" FOR "Beheerder", "Helpdesk" : I[Account] BOX <FORM show
   --   ]
   ]
          
-INTERFACE "View organization" FOR "Beheerder", "Helpdesk" : I[Organization] BOX <TABS showNavMenu>
+INTERFACE "View organization" FOR Maintainer, Helpdesk : I[Organization] BOX <TABS showNavMenu>
   [ "Organization"   : I BOX <FORM>
     [ "Name"                 : orgAbbrName
     , "Full Name"            : orgFullName
@@ -134,13 +134,13 @@ INTERFACE "View organization" FOR "Beheerder", "Helpdesk" : I[Organization] BOX 
   ]
 
 --[Account management INTERFACES]-----------------------------------------------------------------------
-INTERFACE "Organizations" FOR "Account manager" : "_SESSION";V[SESSION*Organization] cRud BOX <TABLE>
+INTERFACE "Organizations" FOR AccountMgr : "_SESSION";V[SESSION*Organization] cRud BOX <TABLE>
   [ "Organization"         : I <OrgAbbrName>
   , "Short name"           : orgAbbrName
   , "Full name"            : orgFullName
   ]
   
-INTERFACE "New/edit organization" FOR "Account manager" : I[Organization] CRuD BOX <FORM showNavMenu>
+INTERFACE "New/edit organization" FOR AccountMgr : I[Organization] CRuD BOX <FORM showNavMenu>
   [ "Short Name"           : orgAbbrName cRUd
   , "Full Name"            : orgFullName cRUd
   , "Roles for every user" : orgRole cRUd
@@ -163,14 +163,14 @@ INTERFACE "New/edit organization" FOR "Account manager" : I[Organization] CRuD B
   , "View details"         : I cRud LINKTO INTERFACE "View organization"
   ]
 
-INTERFACE "People" FOR "Account manager" : "_SESSION";V[SESSION*Representative] cRud BOX <TABLE sortable>
+INTERFACE "People" FOR AccountMgr : "_SESSION";V[SESSION*Representative] cRud BOX <TABLE sortable>
   [ "Representative"       : I             cRud <PersonFullName>
   , "Organization"         : repOrg        cRud
   , "Role"                 : repRole       cRud
   , "Account"              : repAccount    cRud
   ]
 
-INTERFACE "New/edit person" FOR "Account manager" : I[Person] cRud BOX <FORM showNavMenu>
+INTERFACE "New/edit person" FOR AccountMgr : I[Person] cRud BOX <FORM showNavMenu>
   [ "First name": personFirstName          cRUd
   , "Last name" : personLastName           cRUd
   , "Initials"  : personInitials           cRUd
@@ -178,14 +178,14 @@ INTERFACE "New/edit person" FOR "Account manager" : I[Person] cRud BOX <FORM sho
   , "Phonenumbers" : personPhoneNumber     cRUd
   ]
 
-INTERFACE "Accounts" FOR "Account manager" : "_SESSION";V[SESSION*Account] cRuD BOX <TABLE sortable sortBy="Last_32_login" order="desc">
+INTERFACE "Accounts" FOR AccountMgr : "_SESSION";V[SESSION*Account] cRuD BOX <TABLE sortable sortBy="Last_32_login" order="desc">
   [ "Account"       : I
   , "Represents"    : repAccount~
   , "Org account"   : accOrg
   , "Last login"    : accMostRecentLogin
   ]
 
-INTERFACE "New/edit account" FOR "Account manager" : I[Account] CRuD BOX <FORM showNavMenu>
+INTERFACE "New/edit account" FOR AccountMgr : I[Account] CRuD BOX <FORM showNavMenu>
   [ "UserID"      : accUserid           cRUd
   , "Display name": accDisplayName      cRUd
   , "Represents"  : repAccount~         cRud BOX <TABLE>
@@ -215,7 +215,7 @@ INTERFACE "New/edit account" FOR "Account manager" : I[Account] CRuD BOX <FORM s
                         -- \/ account[Subscription*Account]~;(I-(endDateTime;endDateTime~));type;subscriptionTypeRole  -- subscription based roles
   ]
   
-INTERFACE "Role" FOR "Account manager" : I[Role] cRud BOX <FORM showNavMenu>
+INTERFACE "Role" FOR AccountMgr : I[Role] cRud BOX <FORM showNavMenu>
   [ "Role"        : I
   , "In use by"   : I BOX <TABS>
     [ "Accounts"    : accAllowedRoles~ cRud BOX <TABLE sortable sortBy="Last_32_login" order="desc">
@@ -241,7 +241,7 @@ INTERFACE "Role" FOR "Account manager" : I[Role] cRud BOX <FORM showNavMenu>
     ]
   ]
 
-INTERFACE "Login history" FOR "Account manager" : I[Account] BOX <TABLE>
+INTERFACE "Login history" FOR AccountMgr : I[Account] BOX <TABLE>
   [ "Latest login"        : accMostRecentLogin
   , "Login timestamps"    : accLoginTimestamps
   ]

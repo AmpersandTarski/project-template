@@ -1,4 +1,4 @@
-FROM ampersandtarski/prototype-framework:v1.14
+FROM ampersandtarski/prototype-framework:v1.17
 
 # Lines to add specific compiler version (from Github releases)
 # ADD https://github.com/AmpersandTarski/Ampersand/releases/download/Ampersand-v4.1.0/ampersand /usr/local/bin/ampersand
@@ -19,7 +19,9 @@ RUN ampersand proto main.adl \
   --proto-dir /var/www \
   --verbose
 
-RUN chown -R www-data:www-data /var/www/log /var/www/data /var/www/generics \
+COPY customizations /var/www/
+
+RUN chown -R www-data:www-data /var/www/data /var/www/generics \
   && cd /var/www \
   # uncomment lines below if customizations are added to default prototype framework
   && composer install --prefer-dist --no-dev --optimize-autoloader --profile \
