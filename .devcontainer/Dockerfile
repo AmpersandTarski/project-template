@@ -2,7 +2,7 @@
 # Note: You can use any Debian/Ubuntu based image you want. 
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-bullseye
 
-COPY --from=ampersandtarski/ampersand:v4.7 /bin/ampersand /usr/local/bin
+COPY --from=ampersandtarski/ampersand:v5.2 /bin/ampersand /usr/local/bin
 RUN chmod +x /usr/local/bin/ampersand
 
 # Enable new "BUILDKIT" mode for Docker CLI
