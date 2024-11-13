@@ -1,4 +1,4 @@
-FROM ampersandtarski/prototype-framework:v2.0.0-alpha.1
+FROM ampersandtarski/prototype-framework:main
 
 # Lines to add specific compiler version (from Github releases)
 # ADD https://github.com/AmpersandTarski/Ampersand/releases/download/Ampersand-v4.1.0/ampersand /usr/local/bin/ampersand
