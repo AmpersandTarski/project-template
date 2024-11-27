@@ -10,7 +10,6 @@ services:
   ## Ampersand prototype container
   prototype:
     container_name: prototype
-    image: ampersand-prototype:latest
     build:
       context: project
     restart: unless-stopped
@@ -21,7 +20,6 @@ services:
     networks:
       - prototype
     environment:
-      - AMPERSAND_LOG_CONFIG=logging.debug.yaml
       - AMPERSAND_DEBUG_MODE=true
       - AMPERSAND_DBHOST=prototype-db # refers to database service below
       - AMPERSAND_DBUSER=ampersand
@@ -31,7 +29,7 @@ services:
   ## MariaDB database required by prototype
   prototype-db:
     container_name: prototype-db
-    image: mariadb:10.4
+    image: mariadb:10.6
     restart: unless-stopped
     command: ["--lower-case-table-names=1", "--sql-mode=ANSI,TRADITIONAL"]
     environment:
