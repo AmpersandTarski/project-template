@@ -1,4 +1,7 @@
-FROM ampersandtarski/prototype-framework:main
+# No default is given by design. This forses us to specify it in the docker-compose.yml file.
+ARG PROTOTYPE_FRAMEWORK_VERSION  
+
+FROM ampersandtarski/prototype-framework:${PROTOTYPE_FRAMEWORK_VERSION}
 
 COPY . /usr/local/project/
 

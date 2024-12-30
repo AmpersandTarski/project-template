@@ -10,6 +10,8 @@ services:
     container_name: prototype
     build:
       context: project
+      args: 
+        - PROTOTYPE_FRAMEWORK_VERSION=main
     restart: unless-stopped
     depends_on:
       - prototype-db
