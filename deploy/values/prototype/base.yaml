@@ -1,0 +1,4 @@
+image:
+  registry: hub.docker.io
+  repository: my-prototype-ns/prototype
+  tag: latest

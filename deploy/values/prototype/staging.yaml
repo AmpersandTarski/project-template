@@ -1,0 +1,45 @@
+image:
+  # TODO vervang "latest" door de verkorte SHA van het image in harbor, zodat deze deploy workflow weet welk image hij moet hebben.
+  tag: 28d9e1f0
+
+extraEnvVars:
+  # https://ampersandtarski.github.io/prototype/reference-material/prototype-framework#environment-variables
+  - name: AMPERSAND_DEBUG_MODE
+    value: "true"
+  - name: AMPERSAND_PRODUCTION_MODE
+    value: "false"
+  - name: AMPERSAND_SERVER_URL
+    value: ${PROTOTYPE_SERVER_HOST_NAME}
+  - name: AMPERSAND_DBHOST
+    value: mariadb
+  - name: AMPERSAND_DBNAME
+    value: prototype
+  - name: AMPERSAND_DBUSER
+    value: ampersand
+  - name: AMPERSAND_DBPASS
+    value: ampersand
+  - name: MYSQL_AMPERSAND_PASSWORD # is dit nodig als de mariadb installatie deze user al aanmaakt?
+    value: ampersand
+  - name: MYSQL_ROOT_PASSWORD # is dit nodig als de mariadb installatie de ampersand user al aanmaakt?
+    value: mariadb
+  - name: DISABLE_DB_INSTALL
+    value: "false"
+
+ingress:
+  hosts:
+    - host: prototype-apm-my-prototype-cluster.apps02.shared-cluster01.ota
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - prototype-apm-my-prototype-cluster.apps02.shared-cluster01.ota
+      secretName: apps-secret
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 2Gi
+  requests:
+    cpu: 50m
+    memory: 1Gi

@@ -1,0 +1,12 @@
+---
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: my-prototype-cluster
+servers: 1
+agents: 0
+image: docker.io/rancher/k3s:v1.28.8-k3s1
+ports:
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer

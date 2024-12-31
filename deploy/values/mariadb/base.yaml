@@ -1,0 +1,18 @@
+global:
+  imageRegistry: hub.docker.io
+
+networkPolicy:
+  enabled: false
+
+initdbScripts:
+  create-user.sql: |-
+    GRANT ALL PRIVILEGES ON *.* TO 'ampersand'@'%';
+
+primary:
+  persistence:
+    enabled: true
+    storageClass: csi-vsan-sc-raid5
+    size: 2Gi
+
+secondary:
+  replicaCount: 0

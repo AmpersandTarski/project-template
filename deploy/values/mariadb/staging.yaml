@@ -1,0 +1,9 @@
+auth:
+  username: ampersand
+
+primary:
+  resources:
+    limits:
+      cpu: 200m
+    requests:
+      cpu: 100m

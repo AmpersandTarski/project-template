@@ -1,0 +1,36 @@
+image:
+  registry: ""
+  repository: ampersand-prototype
+  tag: latest
+
+extraEnvVars:
+  # https://ampersandtarski.github.io/prototype/reference-material/prototype-framework#environment-variables
+  - name: AMPERSAND_DEBUG_MODE
+    value: "true"
+  - name: AMPERSAND_PRODUCTION_MODE
+    value: "false"
+  - name: AMPERSAND_SERVER_URL
+    value: http://prototype.127-0-0-1.nip.io
+  - name: AMPERSAND_DBHOST
+    value: mariadb
+  - name: AMPERSAND_DBNAME
+    value: prototype
+  - name: AMPERSAND_DBUSER
+    value: ampersand
+  - name: AMPERSAND_DBPASS
+    value: ampersand
+  - name: MYSQL_AMPERSAND_PASSWORD # is dit nodig als de mariadb installatie deze user al aanmaakt?
+    value: ampersand
+  - name: MYSQL_ROOT_PASSWORD # is dit nodig als de mariadb installatie de ampersand user al aanmaakt?
+    value: mariadb
+  - name: DISABLE_DB_INSTALL
+    value: "false"
+
+# Hier zou host: prototype.127-0-0-1.nip.io moeten staan, zodat er een DNS-naam is zonder dat ik de /etc/hosts hoef aan te passen. Maar die werkt niet. Dus moet ik de /etc/hosts aanpassen.
+ingress:
+  className: traefik
+  hosts:
+    - host: prototype
+      paths:
+        - path: /
+          pathType: ImplementationSpecific

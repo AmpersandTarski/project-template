@@ -1,0 +1,11 @@
+global:
+  imageRegistry: docker.io
+
+auth:
+  rootPassword: mariadb
+  username: ampersand
+  password: ampersand
+
+primary:
+  persistence:
+    enabled: false

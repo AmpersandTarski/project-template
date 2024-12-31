@@ -1,0 +1,16 @@
+global:
+  imageRegistry: hub.docker.io
+
+networkPolicy:
+  enabled: false
+
+extraEnvVars:
+  - name: BITNAMI_DEBUG
+    value: "false"
+  - name: DATABASE_HOST
+    value: "mariadb"
+  - name: PHPMYADMIN_ALLOW_ARBITRARY_SERVER
+    value: "false"
+
+ingress:
+  enabled: false

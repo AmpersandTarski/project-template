@@ -1,0 +1,66 @@
+---
+helmDefaults:
+  wait: true
+  timeout: 600
+  createNamespace: false
+---
+environments:
+  local:
+    values:
+      - mariadb:
+          # renovate: datasource=docker depName=docker.io/bitnamicharts/mariadb versioning=helm depType=local
+          chart_version: 19.0.7
+      - phpmyadmin:
+          # renovate: datasource=docker depName=docker.io/bitnamicharts/phpmyadmin versioning=helm depType=local
+          chart_version: 17.0.7
+  staging:
+    values:
+      - mariadb:
+          # renovate: datasource=docker depName=docker.io/bitnamicharts/mariadb versioning=helm depType=staging
+          chart_version: 19.0.7
+      - phpmyadmin:
+          # renovate: datasource=docker depName=docker.io/bitnamicharts/phpmyadmin versioning=helm depType=staging
+          chart_version: 17.0.7
+  production:
+    values:
+      - mariadb:
+          # renovate: datasource=docker depName=docker.io/bitnamicharts/mariadb versioning=helm depType=production
+          chart_version: 19.0.7
+      - phpmyadmin:
+          # renovate: datasource=docker depName=docker.io/bitnamicharts/phpmyadmin versioning=helm depType=production
+          chart_version: 17.0.7
+---
+repositories:
+  - name: bitnamicharts
+    url: '{{ if (eq .Environment.Name "local") }}docker.io{{ else }}hub.docker.com{{ end }}/bitnamicharts'
+    oci: true
+---
+releases:
+  - name: mariadb
+    chart: bitnamicharts/mariadb
+    version: "{{ .Values.mariadb.chart_version }}"
+    inherit: [template: default]
+
+  - name: phpmyadmin
+    chart: bitnamicharts/phpmyadmin
+    version: "{{ .Values.phpmyadmin.chart_version }}"
+    inherit: [template: default]
+    needs:
+      - mariadb
+
+  - name: prototype
+    chart: ./charts/prototype
+    inherit: [template: default]
+    needs:
+      - mariadb
+---
+templates:
+  default:
+    namespace: my-prototype-ns
+    missingFileHandler: Info
+    values:
+      - values/{{`{{ .Release.Name }}`}}/base.yaml
+      - values/{{`{{ .Release.Name }}`}}/{{`{{ .Environment.Name }}`}}.yaml
+    secrets:
+      - values/{{`{{ .Release.Name }}`}}/secrets.yaml
+      - values/{{`{{ .Release.Name }}`}}/{{`{{ .Environment.Name }}`}}-secrets.yaml
