@@ -48,18 +48,22 @@ phpmyadmin   my-prototype-ns   bitnamicharts/phpmyadmin   17.0.7         52s
 
 ## Prerequisites
 For the cookbook recipe to work, you need to have the following tools installed on your local machine:
+### Docker
+  Docker is a platform for developing, shipping, and running applications in containers. Check if Docker is installed:
+```shell
+docker --version
+```
+Docker is included in many container desktop applications, such as Docker Desktop, Rancher Desktop, or Colima.
+
 ### Kubernetes
   Kubernetes is a platform for deploying and managing your application in containerized form. It is widely available.
   Check if Kubernetes is installed:
 ```shell
 kubectl cluster-info
 ```
-  The expected output is something like:
-```
-Kubernetes control plane is running at https://0.0.0.0:55650
-CoreDNS is running at https://0.0.0.0:55650/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
-Metrics-server is running at https://0.0.0.0:55650/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
-```
+  Expect the system to say that the Kubernetes control plane is running.
+  If not, install Kubernetes. On macOS, you can install Kubernetes with Homebrew.
+
   Check if kubectl is installed:
 ```shell
 kubectl version --client
@@ -81,10 +85,6 @@ Check if Helm is installed:
 ```shell
 helm version
 ```
-  The expected output is something like:
-```
-version.BuildInfo{Version:"v3.16.2", GitCommit:"13654a52f7c70a143b1dd51416d633e1071faffb", GitTreeState:"dirty", GoVersion:"go1.23.2"}
-```
   If not, install Helm:
 ```shell
 brew install helm
@@ -97,10 +97,10 @@ brew install helm
 ```shell
 helmfile --version
 ```
-  On macOS, you can install helmfile with Homebrew:
-  ```shell
-   brew install helmfile
-  ```
+  If not, install helmfile:
+```shell
+ brew install helmfile
+```
 
 ### Helm Secrets
   Helm Secrets is a Helm plugin that allows you to encrypt and decrypt secrets in your Helm charts.
@@ -151,7 +151,9 @@ NAME
 ampersand-rap-aks-prd
 docker-desktop
 k3d-my-prototype-cluster
+minikube
 ```
+Either pick a cluster or create a new one.
 
 ## Encrypt secrets
 
@@ -167,33 +169,6 @@ Run this each time you change a secret anywhere in the project.
 ## Running locally
 This is useful for testing and development purposes on your local machine, to ensure that you feed the build pipeline correct code only.
 This helps to iterate faster.
-
-### Prerequisites
-To run a local installation, the local workplace needs:
-- Docker (Docker Desktop / Rancher Desktop / Colima)
-- k3d
-
-  Use k3d instead of kubectl to manage Kubernetes for development and testing purposes.
-  Novices will find it easier than doing the same things with kubectl.
-  On macOS, you can install k3d with Homebrew:
-  ```shell
-   brew install k3d
-  ```
-- helmfile
-
-  Use helmfile to manage Helm charts. Helmfile is a declarative spec for deploying Helm charts. It lets you keep a directory of chart value files and maintain a state of releases in your cluster.
-  On macOS, you can install helmfile with Homebrew:
-  ```shell
-   brew install helmfile
-  ```
-nice to have: something to inspect the cluster in real-time
-- k9s (a character-based interactive viewer into the Kubernetes cluster)
-
-  Try k9s to inspect the cluster and to troubleshoot problems. k9s prevents typing and remembering lots of kubectl commands.
-  On macOS, you can install k9s with Homebrew:
-  ```shell
-   brew install k9s
-  ```
 
 ### Requirements
 1. You need to have a local Kubernetes cluster (k3d-my-prototype-cluster) running on which you can deploy your prototype.
