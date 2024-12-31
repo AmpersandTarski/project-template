@@ -1,4 +1,5 @@
 ---
+# Create a cluster from within your deploy directory with the command:  k3d --config k3d.yaml cluster create
 apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:

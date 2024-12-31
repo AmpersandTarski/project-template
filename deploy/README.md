@@ -48,14 +48,15 @@ phpmyadmin   my-prototype-ns   bitnamicharts/phpmyadmin   17.0.7         52s
 
 ## Prerequisites
 For the cookbook recipe to work, you need to have the following tools installed on your local machine:
-### Docker
+### Installing software
+#### Docker
   Docker is a platform for developing, shipping, and running applications in containers. Check if Docker is installed:
 ```shell
 docker --version
 ```
 Docker is included in many container desktop applications, such as Docker Desktop, Rancher Desktop, or Colima.
 
-### Kubernetes
+#### Kubernetes
   Kubernetes is a platform for deploying and managing your application in containerized form. It is widely available.
   Check if Kubernetes is installed:
 ```shell
@@ -80,7 +81,7 @@ brew install minikube
 minikube start
 ```
 
-### Helm
+#### Helm
 Check if Helm is installed:
 ```shell
 helm version
@@ -90,7 +91,7 @@ helm version
 brew install helm
 ```
 
-### Helmfile
+#### Helmfile
   Use helmfile to manage Helm charts. Helmfile is a declarative spec for deploying Helm charts. It lets you keep a directory of chart value files and maintain a state of releases in your cluster.
 
   Check if Helmfile is installed:
@@ -102,7 +103,7 @@ helmfile --version
  brew install helmfile
 ```
 
-### Helm Secrets
+#### Helm Secrets
   Helm Secrets is a Helm plugin that allows you to encrypt and decrypt secrets in your Helm charts.
 
   Check if Helm Secrets is installed:
@@ -111,10 +112,10 @@ helm secrets --version
 ```
   If not, install Helm Secrets:
 ```shell
-helm plugin install
+helm plugin install https://github.com/jkroepke/helm-secrets
 ```
 
-### k3d
+#### k3d
   Use k3d instead of kubectl to manage Kubernetes for development and testing purposes. Novices will find it easier than doing the same things with kubectl.
 
   Check if k3d is installed:
@@ -126,8 +127,8 @@ k3d --version
 brew install k3d
 ```
 
-### k9s
-  Try k9s to inspect the cluster and to troubleshoot problems. k9s saves you from remembering lots of kubectl commands.
+### monitoring your Kubernetes environment
+  Try k9s to monitor the cluster and to troubleshoot problems. k9s saves you from remembering lots of kubectl commands. Alternatively, use the Kubernetes extension for Visual Studio Code.
 
   Check if k9s is installed:
 ```shell
@@ -139,8 +140,10 @@ brew install k9s
 ```
   Run k9s in a terminal window to inspect the cluster in real-time.
 
-## Investigating your Kubernetes environment
-### List All Accessible Clusters
+### Investigating your Kubernetes environment
+A Kubernetes cluster is a set of compute and storage resources, on which you can run containerized applications. Each node in your cluster is a virtual machine or a physical computer. The nodes are managed by the Kubernetes control plane. The control plane is a set of processes that control the nodes and the containers running on them.
+
+#### List All Accessible Clusters
   To list all clusters you have access to, use the following command:
 ```shell
 kubectl config get-clusters
@@ -154,8 +157,25 @@ k3d-my-prototype-cluster
 minikube
 ```
 Either pick a cluster or create a new one.
+#### Create your local Kubernetes cluster
+```
+# create your cluster (within the deploy directory!!!)
+```shell
+k3d --config k3d.yaml cluster create
+```
 
-## Encrypt secrets
+#### Delete this cluster
+Do this either when you goof-up and want to make a fresh start, or when you are done with your prototype and want to clean up your environment.
+```shell
+k3d --config k3d.yaml cluster delete
+```
+
+#### Switch to an existing cluster
+```shell
+kubectl config use-context <context-name>
+```
+
+### Encrypt secrets
 
 ```
 helm secrets encrypt -i values/<component>/<environment>-secrets.yaml
@@ -171,7 +191,7 @@ This is useful for testing and development purposes on your local machine, to en
 This helps to iterate faster.
 
 ### Requirements
-1. You need to have a local Kubernetes cluster (k3d-my-prototype-cluster) running on which you can deploy your prototype.
+1. You need to have a local Kubernetes cluster (k3d-my-prototype-cluster) up and running, on which you can deploy your prototype.
 2. You need to have a local Docker registry running from which the Kubernetes cluster can pull the images.
 3. Inside the cluster, you need to have a namespace (my-prototype-ns) in which to deploy your prototype. By using a namespace, you keep your prototype from interfering with other applications in the same cluster.
 4. Inside the namespace, you need to define the services mariadb, phpmyadmin, and prototype. The service prototype is configured in the values/prototype/local.yaml file.
@@ -180,18 +200,6 @@ This helps to iterate faster.
 7. The prototype pod is running only if the prototype deployment is running.
 8. The prototype deployment is running only if the prototype container is running.
 9. The prototype container is running only if the prototype image is available. The prototype image is available only if the prototype image is built and pushed to the local Docker registry. The prototype image is built and pushed to the local Docker registry only if the Dockerfile is correct and the build pipeline is successful. The Dockerfile is correct and the build pipeline is successful only if the code is correct and the tests are successful. The code is correct and the tests are successful
-
-### Manage local Kubernetes cluster
-```
-# create cluster (within the deploy directory!!!)
-```shell
-k3d --config k3d.yaml cluster create
-```
-
-# delete cluster
-  ```shell
-k3d --config k3d.yaml cluster delete
-```
 
 ### Use custom image
 By default, the kubelet in the Kubernetes cluster pulls images from docker hub. So, you need to import the image of your prototype into your cluster by hand.
