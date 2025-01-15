@@ -21,7 +21,9 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
     && /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh "true" "${USERNAME}" "${USE_MOBY}" \ 
     && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh "latest" "latest" "latest" \
     && mkdir -p /home/${USERNAME}/.minikube \
-    && chown ${USERNAME} /home/${USERNAME}/.minikube \
+    && chown ${USERNAME} /home/${USERNAME}/.minikube
+    
+RUN apt-get -y install graphviz \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 VOLUME [ "/var/lib/docker" ]
