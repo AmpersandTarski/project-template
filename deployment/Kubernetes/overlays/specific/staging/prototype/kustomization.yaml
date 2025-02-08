@@ -1,5 +1,0 @@
-resources:
-  - ../../../general/staging/prototype
-patches:
-- path: prototype-deployment.yaml
-- path: prototype-ingress.yaml

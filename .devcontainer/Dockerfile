@@ -1,7 +1,7 @@
-#https://github.com/microsoft/vscode-dev-containers/tree/main/containers/kubernetes-helm-minikube
-# Note: You can use any Debian/Ubuntu based image you want. 
+# Start from a common ubuntu image:
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-bullseye
 
+# Get a recent version of the ampersand compiler:
 COPY --from=ampersandtarski/ampersand:v5.2 /bin/ampersand /usr/local/bin
 RUN chmod +x /usr/local/bin/ampersand
 
@@ -18,10 +18,9 @@ ARG USER_GID=$USER_UID
 # Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
 COPY library-scripts/*.sh /tmp/library-scripts/
 RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
-    && /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh "true" "${USERNAME}" "${USE_MOBY}" \ 
-    && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh "latest" "latest" "latest" \
-    && mkdir -p /home/${USERNAME}/.minikube \
-    && chown ${USERNAME} /home/${USERNAME}/.minikube \
+    && /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh "true" "${USERNAME}" "${USE_MOBY}"
+    
+RUN apt-get -y install graphviz \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 VOLUME [ "/var/lib/docker" ]
