@@ -4,8 +4,7 @@
 	"dockerFile": "Dockerfile",
 	"runArgs": ["--privileged"],
 	"mounts": [
-		"source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
-		"source=minikube-config,target=/home/vscode/.minikube,type=volume"
+		
 	],
 	"overrideCommand": false,
 	"postAttachCommand":"sh .devcontainer/startup.sh",
@@ -17,8 +16,7 @@
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ampersandtarski.language-ampersand",
-				"ms-azuretools.vscode-docker",
-				"ms-kubernetes-tools.vscode-kubernetes-tools"
+				"ms-azuretools.vscode-docker"
 			]
 		},
 		"codespaces": {
