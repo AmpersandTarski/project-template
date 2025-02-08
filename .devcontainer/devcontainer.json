@@ -1,4 +1,3 @@
-//https://github.com/microsoft/vscode-dev-containers/tree/main/containers/kubernetes-helm-minikube
 {
 	"name": "Ampersand project",
 	"dockerFile": "Dockerfile",
@@ -29,12 +28,5 @@
 		8000
 	],
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "kubectl version",
-
-	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
-	// "postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
-
-	// Minikube does not like running as root, so use a non-root user.
 	"remoteUser": "vscode"
 }
