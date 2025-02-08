@@ -1,8 +1,0 @@
-resources:
-  - namespace.yaml
-  - ../../../../base/prototype
-namespace: prototype-staging
-nameSuffix: -staging
-patches:
-- path: prototype-deployment.yaml
-- path: prototype-ingress.yaml

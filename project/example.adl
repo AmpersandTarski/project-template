@@ -1,28 +1,71 @@
-CONTEXT HelloWorld IN ENGLISH
-PURPOSE CONTEXT HelloWorld
-{+This script allows you to check whether or not you can actually use Ampersand.+}
+CONTEXT Enrollment IN ENGLISH
+PURPOSE CONTEXT Enrollment
+{+ A complete course consists of several modules.
+Students of a course can enroll for any module that is part of the course.
++}
 
-REPRESENT MyName TYPE ALPHANUMERIC
-sessionMyName :: SESSION * MyName [UNI]
-MEANING "My name can be known in the current session."
+PATTERN Courses
+-- The concepts
+CONCEPT Student "Someone who wants to study at this institute"
+PURPOSE CONCEPT Student
+{+We have to know what person studies at this institute, so the system needs to keep track of them.+}
+CONCEPT Course "A complete course that prepares for a diploma"
+PURPOSE CONCEPT Course
+{+We have to know what courses there are, so the system needs to keep track of them.+}
+CONCEPT Module "An educational entity with a single exam"
+PURPOSE CONCEPT Module
+{+We have to know what modules exist, so the system needs to keep track of them.+}
 
-ROLE User MAINTAINS PleaseClickOnRegistrationToSpecifyYourName
-RULE PleaseClickOnRegistrationToSpecifyYourName LABEL "Please click on 'Registration' to specify your name": "_SESSION"[SESSION] |- sessionMyName;sessionMyName~
-VIOLATION (TXT "You can find the 'Registration' item in the navigation bar (top of the screen).")
+-- The relations and the initial population
+RELATION takes [Student*Course][TOT]
+MEANING "A student takes a complete course"
 
-INTERFACE Registration: "_SESSION"[SESSION] cRud BOX<TABLE>
-   [ "My name is" : sessionMyName cRUd 
-   ]
+POPULATION takes CONTAINS
+[ ("Peter", "Management")
+; ("Susan", "Business IT")
+; ("John", "Business IT")
+]
 
-sayHelloReq :: SESSION * SESSION [PROP]
-ROLE ExecEngine MAINTAINS SayHelloWhenNameIsSpecified
-RULE SayHelloWhenNameIsSpecified LABEL "Say hello when name is specified": "_SESSION"[SESSION] /\ sessionMyName;sessionMyName~ |- sayHelloReq
-VIOLATION (TXT "{EX} SetNavToOnCommit;/Hello_44__32_World"
-          ,TXT "{EX} InsPair;sayHelloReq;SESSION;", SRC I, TXT ";SESSION;", TGT I
-          )
+RELATION isPartOf[Module*Course]
+MEANING "A module part of a complete course"
 
-INTERFACE HelloWorld LABEL "Hello, World": "_SESSION"[SESSION] cRud BOX<TABLE>
-   [ "Hello, world. My name is" : sessionMyName cRud
-   ]
+POPULATION isPartOf[Module*Course] CONTAINS
+[ ("Finance", "Management")
+; ("Business Rules", "Business IT")
+; ("Business Analytics", "Business IT")
+; ("IT-Governance", "Business IT")
+; ("IT-Governance", "Management")
+]
 
-ENDCONTEXT 
+RELATION enrollsIn [Student*Module]
+MEANING "Students enroll for each module in the course separately"
+
+-- The one rule in this model
+RULE ModuleEnrollment: enrollsIn |- takes;isPartOf~
+MEANING "A student can enroll for any module that is part of the course the student takes"
+MESSAGE "Attempt to enroll student(s) for a module that is not part of the student's course."
+VIOLATION (TXT "Student ", SRC I, TXT " enrolled for the module ", TGT I, TXT " which is not part of the course ", SRC I[Student];takes)
+ENDPATTERN
+
+INTERFACE Overview : "_SESSION"                  cRud
+BOX <TABS>
+     [ Students : V[SESSION*Student]             cRuD
+       BOX <TABLE>
+                [ "Student" : I[Student]         cRud
+                , "Enrolled for" : enrollsIn cRUD
+                , "Course" : takes CRUD
+                ]
+     , Course : V[SESSION*Course]                cRuD
+       BOX <TABLE>
+                [ "Course" : I                   cRud
+                , "Modules" : isPartOf~          CRUD
+                ]
+     , Modules : V[SESSION*Module]               cRud
+       BOX <TABLE>
+                [ "Modules" : I                  cRuD
+                , "Course" : isPartOf            cRUd
+                , "Students" : enrollsIn~    CRUD
+                ]
+     ]
+
+ENDCONTEXT

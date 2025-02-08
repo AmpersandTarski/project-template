@@ -1,15 +1,31 @@
-//https://github.com/microsoft/vscode-dev-containers/tree/main/containers/kubernetes-helm-minikube
 {
 	"name": "Ampersand project",
 	"dockerFile": "Dockerfile",
-	"runArgs": ["--privileged"],
-	"mounts": [
-		"source=minikube-var-lib-docker,target=/var/lib/docker,type=volume",
-		"source=minikube-config,target=/home/vscode/.minikube,type=volume"
+	"runArgs": [
+		"--privileged"
 	],
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			// See https://github.com/devcontainers/features/tree/main/src/docker-in-docker
+			"version": "latest",
+			"moby": true,
+			"dockerDashComposeVersion": "latest"
+		},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": false,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true,
+			"upgradePackages": true,
+			"username": "automatic",
+			"userUid": "automatic",
+			"userGid": "automatic",
+			"nonFreePackages": false
+		}
+	},
+	"mounts": [],
 	"overrideCommand": false,
-	"postAttachCommand":"sh .devcontainer/startup.sh",
-
+	"postAttachCommand": "sh .devcontainer/startup.sh",
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
@@ -18,7 +34,7 @@
 			"extensions": [
 				"ampersandtarski.language-ampersand",
 				"ms-azuretools.vscode-docker",
-				"ms-kubernetes-tools.vscode-kubernetes-tools"
+				"mhutchie.git-graph"
 			]
 		},
 		"codespaces": {
@@ -30,13 +46,5 @@
 	"forwardPorts": [
 		8000
 	],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "kubectl version",
-
-	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
-	// "postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
-
-	// Minikube does not like running as root, so use a non-root user.
 	"remoteUser": "vscode"
 }
