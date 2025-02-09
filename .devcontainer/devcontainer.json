@@ -34,7 +34,8 @@
 			"extensions": [
 				"ampersandtarski.language-ampersand",
 				"ms-azuretools.vscode-docker",
-				"mhutchie.git-graph"
+				"mhutchie.git-graph",
+				"ms-vsliveshare.vsliveshare"
 			]
 		},
 		"codespaces": {
