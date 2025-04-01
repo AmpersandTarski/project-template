@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-bullseye
 
 # Get a recent version of the ampersand compiler:
-COPY --from=ampersandtarski/ampersand:v5.2 /bin/ampersand /usr/local/bin
+COPY --from=ampersandtarski/ampersand:v5.3.3 /bin/ampersand /usr/local/bin
 RUN chmod +x /usr/local/bin/ampersand
 
 # Enable new "BUILDKIT" mode for Docker CLI
