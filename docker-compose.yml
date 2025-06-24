@@ -13,6 +13,7 @@ services:
     image: ampersand-prototype:latest
     build:
       context: project
+    platform: linux/amd64
     restart: unless-stopped
     depends_on:
       - prototype-db

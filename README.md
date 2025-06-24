@@ -11,7 +11,7 @@ The remainder of this page lets you deploy on Kubernetes or on Docker, whichever
 
 ## Preparations
 1. Git clone https://github.com/AmpersandTarski/project-template into an empty directory, so you have all the necessary files needed to deploy your application. We will call this the working directory.
-2. Place all your scripts files in the `./project` folder. The [main.adl](./project/main.adl) file is your entry point. It refers to [script.adl](./project/scipt.adl) which is pre-filled with a Hello-world application so you can try things out before making your own Ampersand script.
+2. Place all your scripts files in the `./project` folder. The [main.adl](./project/main.adl) file is your entry point. It refers to [example.adl](./project/example.adl) which is pre-filled with a Hello-world application so you can try things out straight out of the box, before you even write your very first lines of Ampersand.
 3. To run the commands in this instruction, make sure your working directory corresponds to the root of your clone.
 Verify this with the command `ls` (on linux) or `DIR` (on Windows):
 ```
@@ -20,7 +20,7 @@ Dockerfile              SIAM                    apm-prototype.tar       db-init-
 README.md               ampersand               customizations          deployment              docs
 project-template % 
 ```
-4. Rename `.env.example` to `.env` and fill in the missing environment variables to ensure that your prototype can connect to the database. Choose a root password for the database and an ampersand password for your application that accesses this database. We recommend you generate a random password here; there is no need to be able to remember it.
+4. Since we do not store passwords in github repositories, my must create a .env file by renaming `.env.example` to `.env` and filling in the missing environment variables. This enables your prototype to connect to the database. Choose a root password for the database and an ampersand password for your application that accesses this database. We recommend you generate a random password here; there is no need for you to remember it.
 
 ## Instructions for local deployment on Kubernetes
 #### Prerequisites
